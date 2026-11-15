@@ -1,0 +1,100 @@
+<!--meta {"date":"2026-11-16","title":"Microsoft障害、約35時間で復旧／KARTEが不正アクセスで停止／T:ChatGPTのAIが買い物代行","summary":"Microsoftの障害は約35時間で全面復旧。KARTEが不正アクセスで停止。漏えいはヤマダデンキの350万件など5件。ChatGPTのAIが買い物代行。","window":"11/13 05:30 〜 11/16 05:30 JST"} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-sev="mid" data-tag="続報" data-short="【続報】MS障害が全面復旧">
+<header><span class="sev">注意</span><h3>【続報】Microsoftの大規模障害、約35時間で全面復旧。原因は過去のネットワーク増強作業</h3></header>
+<p class="what">前号でお伝えした<span class="pn">Microsoft</span>の仕事用クラウド<span class="pn">Microsoft 365</span>の障害は、11/14 15時ごろ（日本時間）に全地域で全面復旧しました。メールの<span class="pn">Outlook</span>やチャット・会議の<span class="pn">Teams</span>が使いにくい状態は、約35時間続きました。</p>
+<p class="what">Microsoftは、以前のネットワーク容量の増強作業で入った問題が、最近の設定変更で表に出たと説明しました。攻撃やAIが原因ではないとしています。国内では中央省庁の共通基盤<span class="pn">GSS</span>にも影響が出ました。</p>
+<p class="ex"><b>たとえると</b>何か月も前の配線工事の小さなミスが、模様替えをきっかけに停電を起こしたような話です。</p>
+<dl class="facts">
+<dt>障害番号</dt><dd>MO1550821</dd>
+<dt>期間</dt><dd>11/13 3:26ごろ 〜 11/14 15時ごろ（日本時間、約35時間）</dd>
+<dt>原因</dt><dd>過去のネットワーク容量の増強に伴う問題が、最近のネットワーク変更で表面化</dd>
+<dt>今後</dt><dd>詳しい事後報告書を公表予定（日付は未定）</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 障害中に届かなかったメールや会議の招待がないか、相手に確認する。管理者: 事後報告書で原因と再発防止策を確かめ、止まったときの連絡手段を社内ルールに書いておく。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="重大" data-short="KARTEが不正アクセスで停止">
+<header><span class="sev">ヤバい</span><h3>Web接客ツール「KARTE」に不正アクセス、全機能を緊急停止。再開のめど立たず</h3></header>
+<p class="what">多くの企業がWebサイトやアプリに組み込む顧客分析ツール<span class="pn">KARTE</span>で不正アクセスが見つかり、開発元の<span class="pn">プレイド</span>が11/13から全機能を停止しています。11/14夜の発表でも再開のめどは立っていません。</p>
+<p class="what">個人情報が漏れたかどうかと侵入経路は調査中です。止まったのは行動の計測、ポップアップ表示、メール配信、管理画面などで、途中で止まったデータ連携の処理も残りえます。</p>
+<p class="ex"><b>たとえると</b>店の案内係と防犯カメラを一斉に引き揚げたので、店は開いているのに案内も記録もない状態です。</p>
+<dl class="facts">
+<dt>停止開始</dt><dd>11/13 14:44ごろ（ステータスページの告知）</dd>
+<dt>範囲</dt><dd>KARTEを使う全プロジェクト（計測、Web接客、メール配信、データ連携、管理画面・APIなど）</dd>
+<dt>漏えい</dt><dd>有無・範囲・侵入経路とも調査中</dd>
+<dt>確認できた最新の発表</dt><dd>11/14 21:05。再開時期は未定</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: KARTEを使う会社の名前で「情報漏えい」をうたうメールが来ても、リンクは押さず公式サイトで確かめる。管理者: KARTEに送る個人情報の項目を洗い出し、止まったメール配信を送信記録で確かめる。計測タグが表示を遅らせていないかも見る。</p>
+</article>
+
+<article class="topic" data-sev="mid" data-tag="漏洩" data-short="漏えいまとめ 5件">
+<header><span class="sev">注意</span><h3>個人情報の漏えい公表まとめ（5件）</h3></header>
+<p class="what">今日の漏えい公表は5件です。最大は<span class="pn">ヤマダデンキ</span>のリフォーム顧客の最大350万件です。<span class="pn">京成電鉄</span>の件は暗号化したパスワードも対象で、ネット証券の<span class="pn">マネックス証券</span>では運転免許証などの画像が漏れた恐れがあります。</p>
+<ul class="leaks">
+<li><b>京成電鉄（スカイライナーの座席予約）</b><span class="n">最大約337万件</span>ユーザーID、暗号化したパスワード、カナ氏名、電話番号、メールアドレス。予約システムを停止中</li>
+<li><b>ヤマダデンキ（リフォームの管理システム）</b><span class="n">最大350万件</span>氏名・住所・電話番号、リフォームの実施履歴など。不正アクセスを受け、外部への持ち出しは調査中</li>
+<li><b>マネックス証券（ネット証券、委託先の口座開設システム）</b><span class="n">最大113万件</span>メールアドレス。うち1,592件はマイナンバーカード・運転免許証・自撮りの画像の恐れ。取引用のパスワードは対象外</li>
+<li><b>paiza（ITエンジニア向けの学習・転職）</b><span class="n">最大約90万件</span>ユーザーID、生年月日、学歴・職歴など。検証環境のパスワードを長年固定のまま使い、退職者などが入れる状態だった</li>
+<li><b>読売巨人軍（ファンクラブ「CLUB GIANTS」）</b><span class="n">80万7,030件</span>会員のメールアドレス。会員システムが繰り返し不正アクセスを受けた</li>
+</ul>
+<p class="ex"><b>たとえると</b>表の金庫ではなく、裏の物置や仮置き場から書類を持ち出された日です。</p>
+<p class="act"><b>やること</b>利用者: スカイライナーの予約と同じパスワードを他でも使っていれば変更し、各社をかたるメールやSMSのリンクは押さない。管理者: 本番データをコピーした検証環境のパスワードと、退職者のアクセス権が残っていないかを点検する。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="重大" data-short="Check Pointに悪用中の穴">
+<header><span class="sev">ヤバい</span><h3>企業向けファイアウォールCheck Pointの穴、悪用でroot奪取。11月の修正版を</h3></header>
+<p class="what">企業向けファイアウォールで知られる<span class="pn">Check Point</span>の機器に、侵入後に最上位の権限rootを奪える穴があり、すでに攻撃に使われています。米政府の「悪用確認済みリスト」KEVにも11/13（米国時間）に載りました。</p>
+<p class="what">攻撃者は社外接続の入口<span class="pn">Mobile Access</span>の別の穴「PHP2Shell」で侵入し、今回の穴でrootを得ました。イスラエルでは仮想サーバー基盤<span class="pn">VMware ESXi</span>のデータを消す被害も出ています。</p>
+<p class="ex"><b>たとえると</b>裏口から入った泥棒が、管理人室の合鍵まで手に入れた状態です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-123039（CVSS 7.8、EPSS 1.3%）。侵入口はCVE-2026-109618 / 109619（PHP2Shell）</dd>
+<dt>対象</dt><dd>Gaia OS R81〜R82.20 のファイアウォール・管理サーバーなど（Spark、Smart-1 Cloudは対象外）</dd>
+<dt>直った版</dt><dd><b>Jumbo Hotfix: R82.20 Take 14、R82.10 Take 52、R82 Take 132、R81.20 Take 174</b>（R81 / R81.10はサポート終了で修正なし）</dd>
+<dt>KEV</dt><dd>11/13（米国時間）に掲載</dd>
+</dl>
+<p class="act"><b>やること</b>管理者: 11月のJumbo Hotfixを、すべてのゲートウェイと管理サーバーに当てる。Mobile Accessを外に公開していた機器は、侵入の跡と、機器から社内のESXiへの不審なSSH接続を調べる。</p>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-sev="low" data-tag="世界" data-short="ChatGPTが買い物を代行">
+<header><span class="sev">注目</span><h3>OpenAI「ChatGPT Wallet」開始、AIエージェントが買い物の決済まで。米国の一部Pro利用者から</h3></header>
+<p class="what">対話型AIの<span class="pn">ChatGPT</span>を作る米<span class="pn">OpenAI</span>が、AIが買い物代行をして支払いまで済ませる<span class="pn">ChatGPT Wallet</span>を始めました。使えるのは、米国に住む18歳以上で有料のProプランを使う人の一部だけです。</p>
+<p class="what">AIエージェント「dots」が商品を選び、利用者は合計額などを確かめて顔や指紋で承認します。カード番号は代わりのトークンで送られ、AIや店には渡りません。</p>
+<p class="ex"><b>たとえると</b>買い物は秘書に任せつつ、レジでは毎回自分がうなずく仕組みです。</p>
+<p class="act"><b>やること</b>利用者: 今は日本で使えないので、「ChatGPTの支払い設定を」とうたうメールはフィッシングを疑う。管理者: AIが会社のカードで買い物する場面に備え、承認の手順と上限額のルールを考えておく。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term": "KARTE", "aliases": [], "full": "", "short": "プレイドの顧客分析・Web接客ツール", "long": "訪問者の行動を計測し、ポップアップやメールで一人ひとりに合わせた案内を出すプレイドのサービス。多くの企業サイトに組み込まれているため、止まると影響が一斉に広がる。"}, {"term": "GSS", "aliases": ["ガバメントソリューションサービス"], "full": "Government Solution Service", "short": "中央省庁の共通の業務基盤", "long": "デジタル庁が整備した、中央省庁の職員が使うパソコンやネットワークなどの共通基盤。Microsoft 365などのクラウドも使うため、クラウドが止まると省庁の業務にも影響が出る。"}, {"term": "事後報告書", "aliases": ["PIR"], "full": "Post-Incident Report", "short": "障害の原因と対策をまとめた報告", "long": "大きな障害のあとに事業者が出す、原因・経過・再発防止策をまとめた報告書。利用者側は、自社の備えや契約の見直しが必要かを判断する材料にできる。"}, {"term": "ステータスページ", "aliases": [], "full": "", "short": "サービスの稼働状況を知らせるページ", "long": "クラウドサービスなどが、障害や保守の状況を時刻つきで公開するページ。公式の最新情報が最初に出る場所なので、障害時はSNSのうわさより先にここを確認する。"}, {"term": "計測タグ", "aliases": ["タグ"], "full": "", "short": "サイトに埋め込む計測用の短いコード", "long": "Webページに埋め込み、訪問者の行動を外部サービスへ送る短いプログラム。外部サービスが止まると、書き方によってはページの表示が遅れたり、計測が抜けたりする。"}, {"term": "データ連携", "aliases": [], "full": "", "short": "システム間の自動のデータ受け渡し", "long": "あるサービスのデータを、別のシステムへ定期的に自動で送り込む仕組み。途中で止まると欠けた期間のデータが残るため、売上が落ちたように見えるなどの誤解を招く。"}, {"term": "検証環境", "aliases": ["ステージング環境", "動作検証環境"], "full": "Staging environment", "short": "本番前に動作を試すための環境", "long": "システムを本番に出す前に動きを確かめるための環境。本番データを複製して使うことが多いのに守りが甘くなりがちで、放置されると本番と同じ情報が漏れる入口になる。"}, {"term": "アクセス権", "aliases": ["アクセス権限"], "full": "", "short": "システムに入れる権利", "long": "誰がどのシステムやデータに入れるかを決める設定。退職者や異動者の権利を消し忘れると、正規の手順を通らずに社外から入られる原因になる。"}, {"term": "Check Point", "aliases": ["チェック・ポイント"], "full": "", "short": "イスラエルの大手セキュリティ企業", "long": "企業向けのファイアウォールやVPN装置で世界的なシェアを持つセキュリティ企業。社内ネットワークの出入口を守る機器なので、穴を突かれると社内全体が危険にさらされる。"}, {"term": "Mobile Access", "aliases": [], "full": "", "short": "Check Pointの社外接続の入口", "long": "社外から社内のシステムに入るための、Check Point機器の入口機能。インターネットに公開されているため、穴があると世界中から直接狙われやすい。"}, {"term": "PHP2Shell", "aliases": [], "full": "", "short": "PHPの乗っ取りの穴の通称", "long": "Webアプリ用の言語PHPにある、ログインなしで命令を実行できる穴（CVE-2026-109618 / 109619）の通称。Check Point機器への侵入口に使われた。"}, {"term": "Gaia OS", "aliases": ["Gaia"], "full": "", "short": "Check Point機器を動かすOS", "long": "Check Pointのファイアウォールや管理サーバーで動く専用のOS。今回の穴はこの中の管理用の仕組みにあり、侵入者に最上位の権限を与えてしまう。"}, {"term": "Jumbo Hotfix", "aliases": ["Jumbo Hotfix Accumulator"], "full": "Jumbo Hotfix Accumulator", "short": "Check Pointのまとめ修正版", "long": "Check Pointが複数の修正を1つにまとめて配る更新。版ごとにTake番号が付き、指定より新しいTakeを当てると今回の穴がふさがる。"}, {"term": "VMware ESXi", "aliases": ["ESXi"], "full": "", "short": "仮想サーバーを動かす基盤ソフト", "long": "1台の物理サーバーの上で多数の仮想サーバーを動かす基盤ソフト。企業の多くのシステムが乗っているため、データを消されると業務がまとめて止まる。"}, {"term": "管理サーバー", "aliases": [], "full": "", "short": "機器の設定を一括管理するサーバー", "long": "多数のファイアウォールなどの設定や記録をまとめて管理するサーバー。乗っ取られると、守りの設定そのものを書き換えられる恐れがある。"}, {"term": "ゲートウェイ", "aliases": ["セキュリティゲートウェイ"], "full": "", "short": "ネットワークの出入口の機器", "long": "社内ネットワークとインターネットの境目に置き、通信を検査・中継する機器。全通信が通るため、乗っ取られると社内への足場にされる。"}, {"term": "ChatGPT Wallet", "aliases": [], "full": "", "short": "ChatGPTの買い物用の財布機能", "long": "ChatGPTにカードを登録し、AIエージェントが選んだ商品の支払いまで済ませる機能。購入ごとに顔や指紋で承認する仕組みで、現在は米国の一部の利用者だけが使える。"}, {"term": "dots", "aliases": [], "full": "", "short": "OpenAIの個人向けAIエージェント", "long": "利用者の代わりに調べものや買い物などの作業を進める、OpenAIのAIエージェント。支払いまで任せられるため、承認の手順が安全の要になる。"}, {"term": "トークン", "aliases": ["決済トークン"], "full": "", "short": "カード番号の代わりに使う番号", "long": "本物のカード番号の代わりに使う、決済専用の別の番号。店やAIに本物の番号が渡らないので、万一漏れても不正に使い回されにくい。"}, {"term": "Proプラン", "aliases": ["ChatGPT Pro"], "full": "", "short": "ChatGPTの最上位の有料プラン", "long": "ChatGPTの個人向け有料プランのうち最上位のもの。新機能が先に試験提供されることが多く、一般向けより早く使える代わりに料金は高い。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>検証環境：</b>本番に出す前に、システムの動きを試すための環境。本番データをコピーして使うことが多いのに、本番ほど守りが固くないため狙われやすい場所です。今日のpaizaの件のように、パスワードを固定したまま放置すると、本番と同じ情報が漏れます。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://www.watch.impress.co.jp/docs/news/2156470.html">Impress Watch: Microsoft 365、接続障害から回復 後日詳細を報告へ</a></li>
+<li><a href="https://www.techno-edge.net/article/2026/11/13/5714.html">TechnoEdge: Microsoft 365大規模障害が約35時間ぶりに復旧、原因はネットワーク増強時の問題</a></li>
+<li><a href="https://www.nikkei.com/article/DGXZQOUC141CH0U6A111C2000000/">日本経済新聞: マイクロソフトの障害が全面復旧 メールやAI、ほぼ1日半経て</a></li>
+<li><a href="https://www.release.tdnet.info/inbs/140120261113580181.pdf">プレイド: 当社サービスへの不正アクセスに関するお知らせ（適時開示）</a></li>
+<li><a href="https://status.karte.io/">KARTE Status</a></li>
+<li><a href="https://news.yahoo.co.jp/articles/54eb1d7f5c63b9ee2dcc148d54284272cd8c1775">ビジネス＋IT: プレイド「KARTE」に不正アクセス、全プロジェクトで全機能を緊急停止</a></li>
+<li><a href="https://www.issoh.co.jp/tech/details/19723/">KARTEの不正アクセス：全機能停止で利用企業がタグ・配信・データ連携を確かめる手順</a></li>
+<li><a href="https://www.keisei.co.jp/cms/files/keisei/MASTER/0110/OVIfkjTf.pdf">京成電鉄: スカイライナー座席予約システムへの不正アクセスについて（11/13）</a></li>
+<li><a href="https://www.nikkei.com/article/DGXZQOUC13CBJ0T11C26A1000000/">日本経済新聞: 京成電鉄スカイライナー予約システムの情報漏えいの恐れ</a></li>
+<li><a href="https://news.web.nhk/newsweb/na/nd-20261113de75739">NHK: ヤマダデンキ 不正アクセスで最大350万件が影響受けた可能性</a></li>
+<li><a href="https://www.nikkei.com/article/DGXZQOUC140U60U6A111C2000000/">日本経済新聞: ヤマダデンキ、リフォーム顧客情報に不正アクセス 最大350万件漏洩の恐れ</a></li>
+<li><a href="https://www.watch.impress.co.jp/docs/news/2156455.html">Impress Watch: マネックス証券、口座開設システムに不正アクセス 一部は本人確認書類画像も</a></li>
+<li><a href="https://paiza.co.jp/news/20261113/access-management-notice/">paiza: 動作検証環境のアクセス管理に関するお知らせ（11/13）</a></li>
+<li><a href="https://www.giants.jp/news/31752/">読売巨人軍: CLUB GIANTS会員のメールアドレス流出に関するお知らせ（11/13）</a></li>
+<li><a href="https://www.bleepingcomputer.com/news/security/check-point-gateways-hacked-via-php2shell-to-deploy-vmware-esxi-wiper/">BleepingComputer: Check Point gateways hacked via PHP2Shell to deploy VMware ESXi wiper</a></li>
+<li><a href="https://cybersecuritynews.com/check-point-0-day-vulnerability">Cyber Security News: CISA Warns of Check Point 0-Day Vulnerability Exploited to Gain Root Access</a></li>
+<li><a href="https://www.cisa.gov/news-events/alerts/2026/11/13/cisa-adds-two-known-exploited-vulnerabilities-catalog">CISA: CISA Adds Two Known Exploited Vulnerabilities to Catalog（11/13）</a></li>
+<li><a href="https://techcrunch.com/2026/11/13/chatgpts-new-wallet-lets-ai-agents-shop-and-check-out-for-you/">TechCrunch: ChatGPT's new Wallet lets AI agents shop and check out for you</a></li>
+<li><a href="https://openai.com/index/introducing-chatgpt-wallet/">OpenAI: Introducing ChatGPT Wallet</a></li>
+</ul>
+</section>
