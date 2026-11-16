@@ -1,0 +1,91 @@
+<!--meta {"date":"2026-11-17","title":"ドコモ5G SA、今月3度目の障害／KARTEで7.9万件など漏えい／T:AIだけで攻撃する時代へ","summary":"ドコモ5G SAが今月3度目の障害。KARTEで7.9万件の漏えい。日清食品137万件など漏えい2件。AIだけで攻撃する時代へとGoogleが警告。","window":"11/16 05:30 〜 11/17 05:30 JST"} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-sev="mid" data-tag="続報" data-short="【続報】ドコモ5G SA今月3度目">
+<header><span class="sev">注意</span><h3>【続報】ドコモ5G SA、今月3度目の全国障害。約6時間で復旧、原因は前回と同じ</h3></header>
+<p class="what">携帯大手の<span class="pn">NTTドコモ</span>で11/16 10:02から、5G SAの契約者が全国で通話・データ通信・SMSを使いにくくなりました。15:58に復旧しましたが、5G SAの障害は11/5、11/11に続いて今月3度目です。</p>
+<p class="what">ドコモは原因を、5G SAの回線をまとめる交換機に通信が集中した輻輳だと説明しています。過去2回と同じ原因で、攻撃の跡はないとしています。4Gや5G SA以外の5G、ドコモの回線を借りるMVNO、緊急通報は対象外でした。</p>
+<p class="ex"><b>たとえると</b>同じ交差点で、同じ原因の渋滞が1か月に3回起きたような状態です。</p>
+<dl class="facts">
+<dt>期間</dt><dd>11/16 10:02 〜 15:58（約6時間）</dd>
+<dt>対象</dt><dd>5G SAの契約者（全国）。通話・データ通信・SMSが使いにくく、圏外表示も</dd>
+<dt>原因</dt><dd>5G SAの交換機への通信集中（輻輳）。11/5（約14時間）、11/11（約9時間）と同じ</dd>
+<dt>攻撃</dt><dd>不正アクセスやサイバー攻撃の跡はなし</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 障害中に通信の設定を「4G優先」に変えた人は、「5G優先」に戻す。戻さないと5Gにつながりません。管理者: 社用スマホが5G SAなら、つながらないときの連絡手段（別の会社の回線や固定電話）を決めておく。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="続報" data-short="【続報】KARTEで7.9万件漏えい">
+<header><span class="sev">ヤバい</span><h3>【続報】KARTEの不正アクセス、メールアドレス7.9万件と外部連携の鍵が漏えい</h3></header>
+<p class="what">Web接客ツール<span class="pn">KARTE</span>の開発元<span class="pn">プレイド</span>が11/16、利用企業のアカウント用のメールアドレス7.9万件（79,249件）が漏えいしたと発表しました。外部サービスとつなぐ鍵と、利用企業が取り込んだ顧客データの一部も漏れました。サービスは止まったままで、再開時期は未定です。</p>
+<p class="what">攻撃者はプレイドのサーバーの穴を突き、データベースの接続用の認証情報を盗んでデータを読み出しました。盗んだ認証情報で管理画面にも入っています。漏れた鍵と顧客データの件数は調査中です。</p>
+<p class="ex"><b>たとえると</b>店の合鍵の束が盗まれ、取引先の倉庫の鍵まで付け替えが必要になった状態です。</p>
+<dl class="facts">
+<dt>漏えい（確定）</dt><dd>KARTEアカウントのメールアドレス 79,249件</dd>
+<dt>漏えい（件数調査中）</dt><dd>外部連携用のシークレットキー・アクセストークン、利用企業が取り込んだ顧客データの一部（個人情報を含む場合あり）</dd>
+<dt>原因</dt><dd>サーバーの穴を突かれ、データベース等の接続用の認証情報を窃取された</dd>
+<dt>再開</dt><dd>未定（11/16時点）</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: KARTEを使う会社やプレイドを名乗るメールのリンクや添付は開かない。管理者: KARTEに登録した外部連携の鍵を、連携先のサービス側で無効にして作り直す。連携先のアクセス記録に、不審な読み書きがないかも確かめる。</p>
+</article>
+
+<article class="topic" data-sev="mid" data-tag="漏洩" data-short="漏えいまとめ 2件">
+<header><span class="sev">注意</span><h3>個人情報の漏えい公表まとめ（2件）</h3></header>
+<p class="what">今日の漏えい公表は2件で、どちらも委託先や子会社のシステムが入口です。最大は<span class="pn">日清食品</span>で、キャンペーン用のLINE公式アカウントの登録者137万件が漏れました。</p>
+<ul class="leaks">
+<li><b>日清食品（LINE公式アカウント「日清食品キャンペーン」）</b><span class="n">137万4,157件</span>LINEのユーザーID・表示名・プロフィール画像のURLなど。当選者543人は氏名・住所・電話番号も。委託先TOPPANが使うソニックムーブのLINE連携サービス「COMSBI」が不正アクセスを受けた</li>
+<li><b>一番くじONLINE（バンダイナムコのオンラインくじ）</b><span class="n">のべ約41万件</span>発送先の氏名・住所・電話番号。物流子会社バンダイロジパルのシステムに、不正に使われた社内アカウントで入られた。カード情報は含まない</li>
+</ul>
+<p class="ex"><b>たとえると</b>自宅の金庫は無事でも、配達を頼んだ業者から伝票の束を盗まれたようなものです。</p>
+<p class="act"><b>やること</b>利用者: 当選や配送をかたるSMSやメールのリンクは押さない。管理者: キャンペーンや配送の委託先が、多要素認証や使わないアカウントの削除をしているか確かめる。</p>
+</article>
+
+<article class="topic" data-sev="mid" data-tag="盲点" data-short="Barracuda、鍵の放置で侵入">
+<header><span class="sev">注意</span><h3>セキュリティ大手Barracuda、外部のAI業者に渡したままの鍵で侵入される</h3></header>
+<p class="what">メール防御などで知られる米セキュリティ企業<span class="pn">Barracuda</span>が、自社のクラウド環境に侵入されたと公表しました。昔の案件で外部のAI業者に渡し、無効にし忘れていたクラウドのアクセスキーが使われました。</p>
+<p class="what">攻撃者は11/1〜2の44時間で約10のクラウドアカウントに入りました。侵入作業をAIで自動化するツール<span class="pn">ARTEX</span>が使われたとみています。脅威監視サービス<span class="pn">Barracuda XDR</span>の連携用の認証情報の保管場所にも届きましたが、盗まれた証拠はないとしています。</p>
+<p class="ex"><b>たとえると</b>出て行った元同居人に渡した合鍵を、回収し忘れていたような話です。</p>
+<dl class="facts">
+<dt>侵入期間</dt><dd>11/1〜11/2の44時間（発見は11/4）</dd>
+<dt>入口</dt><dd>過去の案件でAI業者に渡したクラウドのアクセスキー（業者のGitHubの設定ファイルから流出したとみられる）</dd>
+<dt>対象のお客</dt><dd>Managed XDR CloudとMonitored Endpointの一部（個別に連絡あり）</dd>
+</dl>
+<p class="act"><b>やること</b>管理者: 外部業者に発行したクラウドのアクセスキーを一覧にし、終わった案件の鍵は無効にする。Barracudaから個別に連絡を受けたXDRの利用企業は、連携用の認証情報を作り直す。</p>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-sev="low" data-tag="話題" data-short="人の手なしのAI攻撃を確認">
+<header><span class="sev">注目</span><h3>Google「人の手なしのAI攻撃」を初確認、半年以内に本格化と予測</h3></header>
+<p class="what"><span class="pn">Google</span>の脅威分析チーム<span class="pn">GTIG</span>が11/16、AIが人の手を借りずに穴探しから侵入まで進める攻撃を初めて確認したと発表しました。Googleは、AIだけで攻撃する時代が近いと警告しています。単純な自動攻撃は3か月以内、高度な完全自動の攻撃は6か月以内に出てくると予測します。</p>
+<p class="what">攻撃者は、侵入テストを自動化する公開ツール<span class="pn">ARTEX</span>などを悪用しています。修正が出てから攻撃が始まるまでの時間が縮み、守る側が更新を当てる余裕が減っています。</p>
+<p class="ex"><b>たとえると</b>泥棒が、道具を持ったロボットに空き巣を丸ごと任せ始めたような話です。</p>
+<p class="act"><b>やること</b>利用者: 更新の通知が来たら後回しにせず、すぐに当てる。管理者: ネットに公開している機器は、修正版の公開から数日以内に当てる運用にする。AIサービスやクラウドの鍵が、普段と違う使われ方をしていないか監視する。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term":"4G","aliases":["LTE","4G（LTE）"],"full":"4th Generation","short":"第4世代の携帯通信","long":"2010年代に広まった携帯電話の通信方式。5Gより遅いが対応エリアが広く、5Gの障害時に4Gへ切り替えると、つながる場合がある。"},{"term":"5G優先","aliases":["4G優先"],"full":"","short":"スマホの通信方式の優先設定","long":"スマホが5Gと4Gのどちらを優先して使うかを決める設定。障害時に4G優先へ変えた場合、戻し忘れると5Gの速さや機能が使えないままになる。"},{"term":"緊急通報","aliases":[],"full":"","short":"110番・119番などの通報","long":"警察・消防・海上保安庁へかける110番・119番・118番の電話。携帯会社は障害時もここを最優先で守るため、影響の有無が必ず発表される。"},{"term":"KARTE","aliases":[],"full":"","short":"プレイドの顧客分析・Web接客ツール","long":"訪問者の行動を計測し、ポップアップやメールで一人ひとりに合わせた案内を出すプレイドのサービス。多くの企業サイトに組み込まれているため、止まると影響が一斉に広がる。"},{"term":"シークレットキー","aliases":["秘密鍵","シークレット"],"full":"Secret key","short":"サービス間の接続に使う秘密の鍵","long":"あるサービスが別のサービスへ接続するときに、本人だと示すための秘密の文字列。漏れると第三者が正規の接続になりすまし、データを読み書きできてしまう。"},{"term":"データベース","aliases":["DB"],"full":"Database","short":"データを整理して保存する仕組み","long":"会員情報や取引記録などを整理して保存し、すばやく検索できるようにする仕組み。接続用の認証情報を盗まれると、中のデータをまとめて読み出される。"},{"term":"外部連携","aliases":["連携"],"full":"","short":"別サービスと自動でつなぐこと","long":"あるサービスを、別のサービスと自動でデータをやり取りできるようにつなぐこと。つなぐための鍵が漏れると、連携先のサービスまで不正に操作される恐れがある。"},{"term":"顧客データ","aliases":["顧客情報"],"full":"","short":"企業が持つお客の情報","long":"会員の氏名や連絡先、購入履歴など、企業が持つお客に関する情報。外部のツールに取り込むと、そのツールが破られたときに一緒に漏れる。"},{"term":"LINE公式アカウント","aliases":["公式アカウント"],"full":"","short":"企業がLINEで情報を送る窓口","long":"企業や店がLINE上に作る窓口のアカウント。友だち追加した人のIDや表示名を企業側が扱えるため、運用を任せた業者のシステムが破られると登録者の情報が漏れる。"},{"term":"ユーザーID","aliases":[],"full":"","short":"利用者を見分けるための番号","long":"サービスが利用者一人ひとりを見分けるために付ける番号や文字列。単体では大きな害は少ないが、他の情報と組み合わさると本人を特定されやすくなる。"},{"term":"COMSBI","aliases":["COMSBI エンタープライズ基盤"],"full":"","short":"ソニックムーブのLINE連携サービス","long":"ソニックムーブが企業向けに提供する、LINE公式アカウントの運用やキャンペーンを支えるサービス。10月に管理システムへの不正ログインがあり、利用企業の情報が漏れた。"},{"term":"アクセスキー","aliases":["クラウドの鍵","APIキー"],"full":"Access key","short":"クラウドを操作するための鍵","long":"プログラムからクラウドを操作するときに使う、ID とパスワードのような文字列。人のログインと違い多要素認証がないことが多く、漏れるとすぐに悪用される。"},{"term":"ARTEX","aliases":[],"full":"","short":"AIで侵入作業を自動化するツール","long":"本来は守る側が弱点を試すために作られた、AIで侵入テストを自動化する公開ツール。7月に公開後10月に取り下げられたが、複製が出回り攻撃に悪用されている。"},{"term":"XDR","aliases":["Barracuda XDR","Managed XDR"],"full":"Extended Detection and Response","short":"複数の監視をまとめる防御サービス","long":"パソコン、メール、クラウドなどの記録をまとめて監視し、攻撃を見つけて対処するサービス。多くのシステムとつなぐため、連携用の認証情報を厳重に守る必要がある。"},{"term":"GTIG","aliases":["Google Threat Intelligence Group","Google脅威インテリジェンスグループ"],"full":"Google Threat Intelligence Group","short":"Googleの脅威分析チーム","long":"Googleで攻撃者の動きや手口を調べ、定期的に報告書を出すチーム。世界の攻撃の傾向をいち早く示すため、守る側が対策の優先順位を決める材料になる。"},{"term":"侵入テスト","aliases":["ペネトレーションテスト","ペンテスト"],"full":"Penetration test","short":"実際に攻めて弱点を探す検査","long":"守る側の依頼で、攻撃者と同じ手口でシステムに侵入できるかを試す検査。そのための道具は攻撃にもそのまま使えるため、悪用されると被害が広がる。"},{"term":"修正版","aliases":[],"full":"","short":"穴をふさいだ新しい版","long":"見つかった穴や不具合を直したソフトの新しい版。公開されると攻撃者も差分から穴を調べられるため、当てるのが遅れるほど狙われやすくなる。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>シークレットキー：</b>サービス同士をつなぐための秘密の文字列。人のログインと違って多要素認証がないことが多く、漏れるとすぐに悪用されます。今日のKARTEとBarracudaの件はどちらも、この鍵の扱いが被害の広がりを左右しました。使い終わった鍵は無効にし、漏れたら作り直すのが基本です。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://www.itmedia.co.jp/news/article/2611/16/2000003233/">ITmedia NEWS: ドコモ「5G SA」今月3度目の障害、約6時間で復旧 原因は同じ「交換機への通信集中」</a></li>
+<li><a href="https://www.itmedia.co.jp/mobile/articles/2611/16/news074.html">ITmedia Mobile: ドコモの「5G SA」通信障害は15時58分に回復 一時的に設定変更した人は元に戻したか確認を</a></li>
+<li><a href="https://k-tai.watch.impress.co.jp/docs/news/2156789.html">ケータイ Watch: ドコモの「5G SA」通信障害が完全復旧、全国で一時利用しづらい状況に</a></li>
+<li><a href="https://k-tai.watch.impress.co.jp/docs/news/2156616.html">ケータイ Watch: ドコモでまたも通信障害、11月3度目</a></li>
+<li><a href="https://plaid.co.jp/news/20261116/">プレイド: 不正アクセスによる個人情報を含む可能性のある情報等の漏えいに関するお詫びとお知らせ（11/16）</a></li>
+<li><a href="https://www.nikkei.com/article/DGXZQOUC169GY0W6A111C2000000/">日本経済新聞: マーケ支援のプレイド、メアド7.9万件漏洩 不正アクセスで</a></li>
+<li><a href="https://www.nissin.com/jp/company/news/13997/">日清食品: 外部サービスへの不正アクセスによる個人情報漏えいに関するお知らせとお詫び（11/16）</a></li>
+<li><a href="https://www.nikkei.com/article/DGXZQOUC1651Z0W6A111C2000000/">日本経済新聞: 日清食品、LINE登録者情報137万件漏洩 委託先に不正アクセス</a></li>
+<li><a href="https://scan.netsecurity.ne.jp/article/2026/11/05/56673.html">ScanNetSecurity: LINE連携基盤「COMSBI エンタープライズ基盤」に不正アクセス</a></li>
+<li><a href="https://news.web.nhk/newsweb/na/nd-20261116de76767">NHK: バンダイナムコHD 「一番くじ」に関する個人情報 のべ41万件余が漏えいか</a></li>
+<li><a href="https://scan.netsecurity.ne.jp/article/2026/11/06/56685.html">ScanNetSecurity: バンダイロジパルに不正アクセス、「一番くじONLINE」の配送情報が漏えいした可能性</a></li>
+<li><a href="https://www.bleepingcomputer.com/news/security/barracuda-links-cloud-breach-to-artex-ai-powered-cyberattack/">BleepingComputer: Barracuda links cloud breach to ARTEX AI-powered cyberattack</a></li>
+<li><a href="https://www.bleepingcomputer.com/news/security/google-warns-that-fully-automated-ai-attacks-are-coming-soon/">BleepingComputer: Google warns that fully-automated AI attacks are coming soon</a></li>
+<li><a href="https://thehackernews.com/2026/11/google-finds-hackers-using-ai-agents-to.html">The Hacker News: Google Finds Hackers Using AI Agents to Build and Run Exploits From Software Patches</a></li>
+</ul>
+</section>
