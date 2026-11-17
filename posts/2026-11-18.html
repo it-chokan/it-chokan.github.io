@@ -1,0 +1,108 @@
+<!--meta {"date":"2026-11-18","title":"Appleのサービスで大規模障害／楽天証券1125万口座漏えい／T:Microsoft、新AIモデル7種","summary":"Appleのサービスで大規模障害。楽天証券で最大1125万口座の情報漏えい。Optimizely悪用でZoomなどのサイトにマルウェア。Microsoftが新AIモデル7種。","window":"11/17 05:30 〜 11/18 05:30 JST"} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-sev="mid" data-tag="重大" data-short="Appleで大規模障害">
+<header><span class="sev">注意</span><h3>Appleのサービスで大規模障害、iCloudのサインインやApp Storeが一時使えず</h3></header>
+<p class="what">日本時間18日の未明から、<span class="pn">Apple</span>のサービスで大規模障害が起きました。写真などを預ける<span class="pn">iCloud</span>へのサインインや、<span class="pn">App Store</span>、<span class="pn">Apple Music</span>が使いにくくなりました。5:30時点で多くは復旧しましたが、一部はまだ止まっています。</p>
+<p class="what">原因はAppleの社内の更新で、攻撃ではないとしています。日本での影響は発表されていません。</p>
+<p class="ex"><b>たとえると</b>本部がレジのシステムを更新したら、全店のレジが一斉に止まったような状態です。</p>
+<dl class="facts">
+<dt>発生</dt><dd>米東部時間11/17の昼ごろから（日本時間11/18の1〜3時台）</dd>
+<dt>影響</dt><dd>iCloudのサインイン、App Store、Apple Music、AppleCare on Device、iCloudメールなど。Apple Payの不具合報告も</dd>
+<dt>原因</dt><dd>Appleの社内の更新（サイバー攻撃ではない）</dd>
+<dt>状況</dt><dd>5:30時点で多くが復旧。AppleCare on Deviceなど一部は未復旧</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 「アカウントを確認して」というメールやSMSのリンクは押さない。障害に便乗した偽メールが出回りやすいためです。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="漏洩" data-short="漏えいまとめ 2件">
+<header><span class="sev">ヤバい</span><h3>楽天証券で最大1125万口座など、個人情報の漏えい公表まとめ（2件）</h3></header>
+<p class="what">最大はネット証券の<span class="pn">楽天証券</span>で、最大1125万口座のログインIDなどが漏えいした恐れがあります。うち447万口座は年収や資産の情報も含みます。2件とも、テスト環境や外部ツールが入口です。</p>
+<ul class="leaks">
+<li><b>楽天証券（ネット証券）</b><span class="n">最大1125万口座</span>ログインID・顧客コード。うち447万口座は氏名・住所・電話・勤務先・出金先口座・年収・資産も。パスワードは漏れていないとしている。入口はテスト環境</li>
+<li><b>東京都の事業「鮨 東京Sushi TOKYO-」（すし作り体験）</b><span class="n">97件</span>予約者の氏名・メール・電話・国籍・アレルギー情報。予約サービスの委託先が使う外部の分析ツールに不正アクセス</li>
+</ul>
+<p class="ex"><b>たとえると</b>本店の金庫は無事でも、練習用に置いていた写しの束を盗まれたようなものです。</p>
+<p class="act"><b>やること</b>利用者: <span class="pn">楽天証券</span>をかたるメール・SMS・電話には応じない。ログインにパスキーを設定する。管理者: テスト環境に本物の顧客データを置いていないか確かめる。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="重大" data-short="Optimizely経由で改ざん">
+<header><span class="sev">ヤバい</span><h3>サイト改善ツール「Optimizely」が悪用され、Zoomなど178組織のサイトにマルウェア</h3></header>
+<p class="what">サイトの見せ方を試し比べるツール<span class="pn">Optimizely</span>が悪用され、ビデオ会議の<span class="pn">Zoom</span>や英銀行の<span class="pn">HSBC</span>など、少なくとも178組織のサイトにマルウェアが仕込まれました。日本時間11/16の昼から11/17の朝に見ただけで、カード番号や暗号資産を盗まれた恐れがあります。</p>
+<p class="what">攻撃者はOptimizelyの登録手続きの穴を突き、各社のサイトが読み込むスクリプトを書き換えました。スクリプトは暗号資産の送金先を差し替え、カード番号やCookieを盗みます。古いiOSには、エクスプロイトキットも送られました。</p>
+<p class="ex"><b>たとえると</b>店に置いた業者のチラシ立てに、偽の振込先を書いたチラシを混ぜられたような話です。</p>
+<dl class="facts">
+<dt>期間</dt><dd>11/16 13:21ごろ〜11/17 8:11ごろ（日本時間）</dd>
+<dt>規模</dt><dd>少なくとも178組織（188ファイル）。Zoom、BBC、CNN、HSBC、Salesforce、GitLab、IKEAなど</dd>
+<dt>iPhone</dt><dd>iOS 18.7.3以降、iOS 26.3以降は対策済み。乗っ取りの報告はまだない</dd>
+<dt>対応</dt><dd>Optimizelyは穴をふさぎ、仕込まれたコードを削除</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: iPhoneとiPadを最新のiOSに更新する。期間中にこれらのサイトでカードを入力した人は、明細を確かめる。管理者: 外部ツールから読み込むスクリプトを洗い出し、勝手に変わったら気づける監視を入れる。</p>
+</article>
+
+<article class="topic" data-sev="mid" data-tag="重大" data-short="【11/16公表】富岳に不正侵入">
+<header><span class="sev">注意</span><h3>【11/16公表】スパコン「富岳」に不正アクセス、運用停止で最大4597人の情報漏えいの恐れ</h3></header>
+<p class="what">国の研究機関<span class="pn">理化学研究所</span>が11/16、スーパーコンピューター<span class="pn">富岳</span>に不正アクセスがあり、運用を止めたと公表しました。利用者最大4597人の氏名やメールアドレスのほか、研究データや外部につなぐ鍵が漏れた恐れがあります。</p>
+<p class="what">攻撃者は、ネットに公開していた稼働状況のダッシュボードから内部に入りました。盗んだ認証情報で、ほかのシステムへの接続も試しています。</p>
+<p class="ex"><b>たとえると</b>来館者向けの案内掲示板から、研究所の裏口に入られたような話です。</p>
+<dl class="facts">
+<dt>侵入</dt><dd>11/10〜11/13（検知11/12、運用停止11/14）</dd>
+<dt>漏えいの恐れ</dt><dd>富岳の利用者最大4,222人と、AI研究システム「理究」の利用者最大375人の氏名・メール等。ホームディレクトリのSSH秘密鍵・アクセスキー・研究データ</dd>
+<dt>再開</dt><dd>未定（悪用された脆弱性への対処とサーバーの再構築の後）</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: <span class="pn">富岳</span>に置いていたSSHの鍵やアクセスキーは、つなぎ先のサービス側で無効にして作り直す。管理者: ネットに公開している監視用の画面を洗い出し、不要なら閉じる。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="重大" data-short="Puppetの穴、悪用を確認">
+<header><span class="sev">ヤバい</span><h3>サーバー設定管理ツール「Puppet Enterprise」の穴、米政府が悪用を確認</h3></header>
+<p class="what">多数のサーバーの設定を自動でそろえる管理ツール<span class="pn">Puppet Enterprise</span>の穴が、攻撃に使われています。米政府の「悪用確認済みリスト」KEVに11/17に載りました。管理サーバーを乗っ取られる恐れがあるため、使っている会社はすぐ更新が必要です。</p>
+<p class="what">細工した報告データを送ると、管理サーバーで任意のコードを動かせます。深刻度はCVSS 9.4で、攻撃コードも公開済みです。</p>
+<p class="ex"><b>たとえると</b>支店から届く日報に命令書を紛れ込ませ、本社の金庫番を動かすような手口です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-115731（CVSS 9.4）</dd>
+<dt>直った版</dt><dd>Puppet Enterprise 2023.8.13 / 2025.12.1 / 2026.0.1、OpenVox Server 8.18.0 / 9.2.0</dd>
+<dt>米政府機関の期限</dt><dd>12/1</dd>
+</dl>
+<p class="act"><b>やること</b>管理者: <span class="pn">Puppet Enterprise</span>を直った版に更新する。すぐ更新できないなら、管理サーバーへの通信を社内だけに絞る。更新の止まった無料版<span class="pn">Open Source Puppet</span>は、後継の<span class="pn">OpenVox</span>へ移す。</p>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-sev="low" data-tag="最新" data-short="MS、新AIモデル7種">
+<header><span class="sev">注目</span><h3>Microsoft、自社開発のAIモデル7種を発表 プログラミング用はGitHub Copilotで今日から</h3></header>
+<p class="what"><span class="pn">Microsoft</span>が11/17、自社開発の新AIモデル7種を発表しました。プログラミング用の「MAI Code 2」と軽量版「MAI Code 2 Flash」は、AIのコード補助サービス<span class="pn">GitHub Copilot</span>で今日から選べます。</p>
+<p class="what">使えるのは年額プランの契約者で、Flashは無料プランでも選べます。他社の上位AIに近い性能を、低い費用で出すとしています。</p>
+<p class="ex"><b>たとえると</b>いつもの文房具店に、店のオリジナル文具が並び始めたような話です。</p>
+<p class="act"><b>やること</b>利用者: Copilotのモデル選択で試し、今のモデルと速さや仕上がりを比べる。管理者: 新しいモデルは初期設定で自動的に使える状態になる。社内ルールに合わなければ、Copilotの設定で止める。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term": "AppleCare on Device", "aliases": ["AppleCare"], "full": "", "short": "端末からAppleの保証に入る機能", "long": "iPhoneなどの設定画面から、Appleの延長保証AppleCareを直接申し込める機能。止まると購入直後の保証加入ができず、期限内に申し込めない恐れがある。"}, {"term": "顧客コード", "aliases": ["部店・顧客コード"], "full": "", "short": "証券会社がお客に付ける番号", "long": "証券会社が口座ごとに付ける管理用の番号。単体では取引できないが、氏名や連絡先と組み合わさると、本物らしい偽の連絡に使われやすくなる。"}, {"term": "テスト環境", "aliases": ["検証環境", "試験環境"], "full": "", "short": "本番の前に動作を試す環境", "long": "本番のサービスに出す前に、動作を試すために用意する別のシステム。本番より守りが甘くなりがちで、本物の顧客データを写して置くと漏えいの入口になる。"}, {"term": "パスキー", "aliases": ["passkey"], "full": "Passkey", "short": "パスワードの代わりの安全なログイン", "long": "スマホの指紋や顔認証などでログインする仕組み。パスワードを入力しないため、偽サイトに入力して盗まれることがなく、フィッシング対策として強く勧められている。"}, {"term": "分析ツール", "aliases": ["アクセス解析ツール"], "full": "", "short": "サイト利用状況を測る外部ツール", "long": "サイトの閲覧や予約の状況を計測・集計する外部のサービス。入力された情報まで取り込む設定だと、そのツールが破られたときに利用者の情報が一緒に漏れる。"}, {"term": "Optimizely", "aliases": [], "full": "", "short": "サイトの見せ方を試すツール", "long": "企業がサイトのデザインや文言を複数用意し、どちらが効果的かを試すための外部サービス。多くの大手サイトがその部品を読み込むため、悪用されると被害が一斉に広がる。"}, {"term": "暗号資産", "aliases": ["仮想通貨", "暗号資産ウォレット"], "full": "", "short": "ビットコインなどのデジタル通貨", "long": "ビットコインなど、ネット上でやり取りするデジタルの通貨。送金先の文字列を差し替えられても気づきにくく、一度送ると取り戻すのがほぼ不可能なため狙われやすい。"}, {"term": "スクリプト", "aliases": ["JavaScript"], "full": "", "short": "ページの中で動く小さなプログラム", "long": "Webページを開くと自動で動く小さなプログラム。外部のサービスから読み込むことが多く、その提供元が書き換えられると、見た人全員に悪い動きをさせられる。"}, {"term": "Cookie", "aliases": ["クッキー"], "full": "", "short": "サイトが覚えておく小さな記録", "long": "サイトがログイン状態などを覚えるため、ブラウザに保存する小さな記録。盗まれると、パスワードなしで本人になりすましてログインされる恐れがある。"}, {"term": "iOS", "aliases": [], "full": "", "short": "iPhone・iPadの基本ソフト", "long": "AppleのiPhoneやiPadを動かす基本ソフト。古い版のままだと、見つかった穴を突く攻撃に弱いため、更新の通知が来たら早めに当てることが大切。"}, {"term": "エクスプロイトキット", "aliases": ["攻撃キット"], "full": "Exploit kit", "short": "穴を自動で突く攻撃の道具一式", "long": "見に来た端末の種類や版を調べ、それに合った穴を自動で突く攻撃道具の詰め合わせ。サイトを開くだけで感染させられるため、更新していない端末が狙われる。"}, {"term": "スーパーコンピューター", "aliases": ["スパコン"], "full": "Supercomputer", "short": "超高速の大型計算機", "long": "一般のパソコンの何万倍もの速さで計算する大型の計算機。研究機関や企業が共同で使うため、侵入されると多くの利用者の研究データや接続用の鍵が狙われる。"}, {"term": "ダッシュボード", "aliases": [], "full": "Dashboard", "short": "状況を一覧で見せる画面", "long": "システムの稼働状況などを、グラフや表で一覧にして見せる画面。ネットに公開していると、そこに穴があった場合に内部への入口として使われる恐れがある。"}, {"term": "ホームディレクトリ", "aliases": [], "full": "Home directory", "short": "利用者ごとの個人用フォルダ", "long": "共用のコンピューターで、利用者ごとに割り当てられる個人用の保存場所。鍵や研究データなど大事なファイルを置きがちなため、盗まれると被害が広がる。"}, {"term": "秘密鍵", "aliases": ["SSH秘密鍵"], "full": "Private key", "short": "本人証明に使う秘密のファイル", "long": "サーバーなどにログインするとき、本人だと証明するための秘密のファイル。パスワードの代わりに使えるため、盗まれると持ち主になりすまして接続されてしまう。"}, {"term": "アクセスキー", "aliases": ["APIキー"], "full": "Access key", "short": "クラウドを操作するための鍵", "long": "プログラムからクラウドなどを操作するときに使う、IDとパスワードのような文字列。多要素認証がないことが多く、漏れるとすぐに悪用される。"}, {"term": "脆弱性", "aliases": ["ぜい弱性"], "full": "Vulnerability", "short": "ソフトの弱点（穴）", "long": "ソフトや機器の作りの不備で、攻撃者に悪用されうる弱点。修正版が出たら早く当てないと、そこから侵入されたりデータを盗まれたりする。"}, {"term": "理究", "aliases": [], "full": "", "short": "理研のAI研究用システム", "long": "理化学研究所が運用する、科学研究にAIを使うためのシステム。富岳と認証の仕組みを共有していたため、今回の侵入で利用者の情報も漏れた恐れがある。"}, {"term": "Puppet Enterprise", "aliases": ["Puppet", "Open Source Puppet", "Puppet Server"], "full": "", "short": "サーバー設定の自動管理ツール", "long": "多数のサーバーの設定を自動でそろえる管理ツール。管理サーバーは全台に命令できる立場のため、乗っ取られると管理下のサーバーすべてに被害が広がる。"}, {"term": "OpenVox", "aliases": ["OpenVox Server"], "full": "", "short": "Puppetの後継の無料版", "long": "無料版Puppetの開発を引き継いだコミュニティ版の管理ツール。無料版Puppetは更新が止まったため、今回の穴を直すには移行や更新が必要になる。"}, {"term": "任意のコード", "aliases": ["任意のコード実行"], "full": "Arbitrary code execution", "short": "攻撃者の好きなプログラム", "long": "攻撃者が自由に選んだプログラムを、相手のコンピューター上で動かせてしまうこと。できることに制限がないため、乗っ取りや情報の持ち出しにつながる最も危険な穴の一つ。"}, {"term": "管理サーバー", "aliases": [], "full": "", "short": "ほかの機器を管理する中心のサーバー", "long": "多数の機器に設定や命令を配る中心のサーバー。全体を動かせる立場のため、乗っ取られると管理下の機器すべてが攻撃者の手に渡る恐れがある。"}, {"term": "GitHub Copilot", "aliases": ["Copilot"], "full": "", "short": "GitHubのAIコード補助", "long": "プログラムを書くとき、AIがコードの続きや修正を提案するGitHubのサービス。使うAIモデルを選べるため、新モデルが加わると性能や費用の選択肢が変わる。"}, {"term": "MAI Code 2", "aliases": ["MAI Code 2 Flash", "MAI"], "full": "", "short": "Microsoft自社開発のコード用AI", "long": "Microsoftが自社で開発したプログラミング向けのAIモデル。軽量版のFlashもある。他社のAIに頼らず、低い費用で同等の性能を出すことを狙っている。"}, {"term": "AIモデル", "aliases": ["モデル"], "full": "", "short": "AIの頭脳にあたる部分", "long": "文章や画像を理解・生成するために学習させたAIの本体。同じサービスでもモデルを替えると、得意分野や速さ、費用が変わる。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>テスト環境：</b>本番のサービスに出す前に、動きを試すための別の環境。本番より守りが甘くなりがちで、本物の顧客データを写して置くと、そこが漏えいの入口になります。今日の楽天証券の件も、テスト環境の情報が外に出た可能性が示されました。試験には架空のデータを使うのが基本です。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://www.bleepingcomputer.com/news/apple/apple-reports-outages-affecting-icloud-mail-applecare-and-more/">BleepingComputer: Apple reports outages affecting iCloud Mail, AppleCare and more</a></li>
+<li><a href="https://www.tomsguide.com/news/live/apple-outage-november-17-2026">Tom's Guide: Multiple Apple services down including Apple Music and iCloud</a></li>
+<li><a href="https://www.ibtimes.com/apple-internal-update-caused-service-outages-3809875">IBTimes: Apple Reveals Cause Of Major iCloud And App Store Outage</a></li>
+<li><a href="https://9to5mac.com/2026/11/17/icloud-app-store-and-other-apple-services-hit-by-ongoing-outage/">9to5Mac: iCloud, App Store, and other Apple services hit by ongoing outage</a></li>
+<li><a href="https://www.itmedia.co.jp/news/article/2611/17/2000003275/">ITmedia NEWS: 楽天証券に不正アクセス、最大1125万口座のIDなど漏えいか</a></li>
+<li><a href="https://www.watch.impress.co.jp/docs/news/2157207.html">Impress Watch: 楽天証券に不正アクセス 最大1125万口座の情報漏えい可能性</a></li>
+<li><a href="https://www.nikkei.com/article/DGXZQOUB179TR0X11C26A1000000/">日本経済新聞: 楽天証券、年収など顧客情報漏洩 不正アクセスで最大447万口座分</a></li>
+<li><a href="https://www.rakuten-sec.co.jp/web/info/info20261117-02.html">楽天証券: 不正アクセスに関するお知らせ（11/17）</a></li>
+<li><a href="https://www.sangyo-rodo.metro.tokyo.lg.jp/information/press/2026/11/2026111705">東京都産業労働局: 不正アクセスによる個人情報の漏えいについて（11/17）</a></li>
+<li><a href="https://thenextweb.com/news/optimizely-hack-malware-zoom-bbc-cnn-hsbc-178-sites">The Next Web: Hackers used Optimizely to plant malware on Zoom, BBC, CNN and HSBC sites</a></li>
+<li><a href="https://www.macrumors.com/2026/11/17/iphone-users-targeted-website-security-breach/">MacRumors: iPhone Users Targeted in Major Website Security Breach</a></li>
+<li><a href="https://www.riken.jp/pr/news/2026/20261116_2/index.html">理化学研究所: スーパーコンピュータ「富岳」への不正アクセスについて（11/16）</a></li>
+<li><a href="https://www.itmedia.co.jp/news/article/2611/17/2000003253/">ITmedia NEWS: スパコン「富岳」不正アクセスで運用停止</a></li>
+<li><a href="https://piyolog.hatenadiary.jp/entry/2026/11/17/030254">piyolog: スーパーコンピューター「富岳」への不正アクセスについてまとめてみた</a></li>
+<li><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog">CISA: Known Exploited Vulnerabilities Catalog（CVE-2026-115731、11/17追加）</a></li>
+<li><a href="https://securityonline.info/puppet-server-rce-cve-2026-115731-poc/">SecurityOnline: Puppet Server RCE CVE-2026-115731 PoC</a></li>
+<li><a href="https://github.blog/changelog/2026-11-17-mai-code-2-and-mai-code-2-flash-in-github-copilot/">GitHub Changelog: MAI Code 2 and MAI Code 2 Flash in GitHub Copilot</a></li>
+<li><a href="https://www.testingcatalog.com/microsoft-launches-seven-mai-models-at-ignite-2026/">TestingCatalog: Microsoft launches seven MAI models at Ignite 2026</a></li>
+</ul>
+</section>
