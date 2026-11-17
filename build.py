@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v11)
+"""Build the static site into _site/. (v12)
+v12: follow buttons add Instagram / Facebook / TikTok (X on by default). Empty string in config.json "follow" hides a button.
+     TikTok stays hidden until the username is changed to it_chokan (after 2026-12-15).
 v11: kandoku card note adds "private browsing loses stamps when closed".
 Inputs: config.json, glossary.json, posts/YYYY-MM-DD.html (first line: <!--meta {json} -->), static/
 Optional: site_ids.json {"google_site_verification": "", "goatcounter": "", "show_counter": false}
@@ -31,7 +33,9 @@ GSV = (ids.get("google_site_verification") or "").strip()
 GC = (ids.get("goatcounter") or "").strip()
 SHOW_COUNTER = bool(ids.get("show_counter")) and bool(GC)
 # v10: official SNS (config.json "follow" overrides; empty string hides a button)
-FOLLOW = {"threads": "https://www.threads.com/@it_chokan", "bluesky": "", "x": ""} | (cfg.get("follow") or {})
+FOLLOW = {"x": "https://x.com/it_chokan", "threads": "https://www.threads.com/@it_chokan",
+          "instagram": "https://www.instagram.com/it_chokan", "facebook": "https://www.facebook.com/it.chokan",
+          "tiktok": "", "bluesky": ""} | (cfg.get("follow") or {})
 ICON_SRC = ROOT / "static" / "icon" / "source.png"   # square brand icon; rank variants are generated at build time
 HAS_ICON = False                                     # set by make_icons()
 
@@ -365,7 +369,7 @@ def cover_html(p, body, items, rel, is_current, latest):
 """, mins
 
 def kandoku_html(p, rel, is_current):
-    fl = [(k, lab) for k, lab in (("x", "X"), ("threads", "Threads"), ("bluesky", "Bluesky")) if FOLLOW.get(k)]
+    fl = [(k, lab) for k, lab in (("x", "X"), ("threads", "Threads"), ("instagram", "Instagram"), ("facebook", "Facebook"), ("tiktok", "TikTok"), ("bluesky", "Bluesky")) if FOLLOW.get(k)]
     btns = "".join(f'<a href="{esc(FOLLOW[k])}" rel="noopener" target="_blank">{lab}</a>' for k, lab in fl)
     btns += f'<a href="{BASE}feed.xml">RSS</a>'
     head_t = "けさのIT、これで全部です。" if is_current else "この号は、これで全部です。"
