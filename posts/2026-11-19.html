@@ -1,0 +1,113 @@
+<!--meta {"date":"2026-11-19","title":"KARTE経由でDHC1911万件／Javaに乗っ取りの穴／T:GPT-6.2が登場","summary":"KARTE経由の漏えいでDHC1911万件など公表が相次ぐ。Javaに乗っ取りの穴。SynologyのNASとLiteLLMの穴が悪用。GPT-6.2が登場。","window":"11/18 05:30 〜 11/19 05:30 JST"} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-sev="high" data-tag="続報" data-short="【続報】KARTEでDHC1911万件">
+<header><span class="sev">ヤバい</span><h3>【続報】KARTE経由の漏えい、DHC1911万件・三菱UFJ銀行650万件など公表が相次ぐ</h3></header>
+<p class="what">顧客分析ツール<span class="pn">KARTE</span>への不正アクセスで、利用企業の公表が相次いでいます。11/18の公表では、健康食品や化粧品の通販の<span class="pn">DHC</span>の約1911万件が最大です。<span class="pn">三菱UFJ銀行</span>も約650万件を公表しました。カード情報とパスワードは、各社とも対象外としています。</p>
+<p class="what">開発元の<span class="pn">プレイド</span>は11/18、盗んだ認証情報でアカウントの乗っ取りや管理画面への侵入もあったと説明しました。サービスの再開は未定です。</p>
+<ul class="leaks">
+<li><b>DHC（健康食品・化粧品の通販）</b><span class="n">約1911万件</span>氏名・メール・生年月日・性別・会員IDなど</li>
+<li><b>三菱UFJ銀行</b><span class="n">約650万件</span>性別・年齢・住む地域</li>
+<li><b>CAMPFIRE（クラウドファンディング）</b><span class="n">581万9,779件</span>メール、ハッシュ化したユーザーID</li>
+<li><b>ミツモア（見積もり比較サービス）</b><span class="n">約340万人</span>識別番号・都道府県（6万人は氏名・連絡先なども）</li>
+<li><b>ユニフォームネクスト（制服の通販）</b><span class="n">最大170万1,006件</span>会社名・氏名・メール・電話など</li>
+<li><b>ポケットマルシェ（産直通販、雨風太陽）</b><span class="n">約95万人</span>会員ID・メール・ニックネームなど</li>
+<li><b>ウェルスナビ（ロボアドバイザー）</b><span class="n">約91万人</span>識別コード・生まれた年月・都道府県</li>
+<li><b>三菱UFJ信託銀行</b><span class="n">約23万件</span>会員番号から作った識別子・性別など</li>
+</ul>
+<p class="ex"><b>たとえると</b>多くの店が名簿を預けた倉庫が破られ、店ごとの確認が続いている状態です。</p>
+<dl class="facts">
+<dt>入口</dt><dd>プレイドのサーバーの穴を突かれ、接続用の認証情報を盗まれた（11/13未明）</dd>
+<dt>11/18のほかの公表</dt><dd>三菱UFJ eスマート証券、Schoo、Creemaなど</dd>
+<dt>再開</dt><dd>未定（11/18 16時時点）</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 各社をかたる「お詫び」のメールやSMSのリンクは押さない。漏れた生年月日などで、本物らしい連絡が来やすいためです。管理者: KARTEにつないでいた外部サービスの鍵を作り直す。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="話題" data-short="Javaに乗っ取りの穴">
+<header><span class="sev">ヤバい</span><h3>Javaに乗っ取りの穴「Java4Shell」、JPCERT/CCも注意喚起。修正版へ更新を</h3></header>
+<p class="what">業務システムで広く使われるプログラミング言語<span class="pn">Java</span>の実行環境に、ログインなしで外から乗っ取りができる恐れのある穴が見つかりました。発見者はこの穴を「Java4Shell」と呼んでいます。国内の調整機関<span class="pn">JPCERT/CC</span>も11/18に注意を呼びかけました。</p>
+<p class="what">原因は、変換方式Base64の処理を速くする仕組みの不具合です。AVX-512という命令に対応したCPUで動き、外から届いたデータをこの処理に渡すアプリが狙われます。11/18夕方時点で、乗っ取りの成功例は確認されていません。</p>
+<p class="ex"><b>たとえると</b>仕分け機を速くする改造に欠陥があり、細工した封筒を入れると機械ごと操られる話です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-114938（CVSS 8.1。発見者の評価は9.2）</dd>
+<dt>対象</dt><dd>OpenJDK 17.0.6以降の17・21・25・27系、Oracle Javaの一部。通常版のJava 8と11は対象外</dd>
+<dt>直った版</dt><dd>Oracle Java 17.0.21.1 / 21.0.13.1 / 25.0.5.1 / 27.0.1.1。Amazon・Microsoft・Azulなどの配布版も対応済み。一部のLinux向けは未提供（11/18夕方時点）</dd>
+<dt>回避策</dt><dd>起動オプション -XX:-UseBASE64Intrinsics（処理は遅くなる）</dd>
+</dl>
+<p class="act"><b>やること</b>管理者: 社内のJavaの版と配布元を洗い出し、修正版に更新して再起動する。コンテナは作り直す。すぐ更新できないものは、起動オプションで問題の処理を止める。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="重大" data-short="古いSynologyのNASに悪用">
+<header><span class="sev">ヤバい</span><h3>古いSynologyのNASの穴、米政府が悪用を確認。すぐ更新を</h3></header>
+<p class="what">家庭や小さな会社向けのファイル保存機器NASの大手<span class="pn">Synology</span>で、古い基本ソフト<span class="pn">DSM</span>の穴が悪用されています。米政府の「悪用確認済みリスト」KEVに、11/18（米国時間）に載りました。更新していない機器は、すぐ更新が必要です。</p>
+<p class="what">穴はログインなしで外から任意のコードを動かせるものです。修正版は2024年12月に出ています。Synologyは10/29、この時期に直した穴を突くランサムウェア攻撃を確認したと発表していました。使われた穴の番号は明かしていません。</p>
+<p class="ex"><b>たとえると</b>2年前に配られた錠前の交換部品を、付けていない家が狙われている状況です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2024-10441（CVSS 9.8）</dd>
+<dt>直った版</dt><dd>DSM 7.2.2-72806-1、7.2.1-69057-6、7.2-64570-4、7.1.1-42962-7、6.2.4-25556-8以降。BeeStation OS 1.1-65374以降</dd>
+<dt>米政府機関の期限</dt><dd>11/21</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: NASの管理画面でDSMの版を確かめて更新し、自動更新を有効にする。管理者: NASをネットに直接公開せず、外から使うならVPN経由にする。</p>
+</article>
+
+<article class="topic" data-sev="mid" data-tag="重大" data-short="LiteLLMの穴、悪用を確認">
+<header><span class="sev">注意</span><h3>AIの中継ソフト「LiteLLM」の穴、悪用を確認。初期設定の鍵のままが狙われる</h3></header>
+<p class="what">複数のAIサービスへの接続をまとめる中継ソフト<span class="pn">LiteLLM</span>の穴が、悪用されています。11/18（米国時間）にKEVに載りました。管理用の鍵を当てられると、サーバーを乗っ取られ、AIサービスの鍵を盗まれる恐れがあります。</p>
+<p class="what">穴はAIの入出力を検査するガードレールの試験機能にあり、隔離を抜けてコードを動かせます。攻撃者は「sk-1234」など、初期設定のままのマスターキーを試しています。</p>
+<p class="ex"><b>たとえると</b>暗証番号が「1234」のままの金庫を、片端から開けて回る泥棒の手口です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-40217（CVSS 8.8）</dd>
+<dt>対象</dt><dd>1.81.8以上1.83.10未満</dd>
+<dt>直った版</dt><dd>1.83.10以降</dd>
+<dt>米政府機関の期限</dt><dd>12/2</dd>
+</dl>
+<p class="act"><b>やること</b>管理者: LiteLLMを1.83.10以降に更新する。マスターキーを推測できない値に変え、管理用の画面をネットに公開しない。</p>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-sev="low" data-tag="話題" data-short="【11/17発表】GPT-6.2登場">
+<header><span class="sev">注目</span><h3>【11/17発表】OpenAI「GPT-6.2」登場 最上位のAstraは費用3分の1未満で性能向上</h3></header>
+<p class="what">対話型AIの<span class="pn">ChatGPT</span>を作る米<span class="pn">OpenAI</span>が11/17（米国時間）、新しいAIモデル「GPT-6.2」を発表し、AstraとSolの2種が登場しました。有料のPlus・Pro・Enterprise・Eduプランの利用者が、発表当日から使えます。</p>
+<p class="what">使う場所は、仕事向けの画面<span class="pn">ChatGPT Work</span>と開発支援の<span class="pn">Codex</span>です。Astraは前の世代より高い成績を、作業1件あたり3分の1未満の費用で出したとしています。悪用防止のため、脆弱性の調査などの依頼は制限される場合があります。</p>
+<p class="ex"><b>たとえると</b>腕利きの料理人がさらに上達し、しかも一皿の値段が下がったような話です。</p>
+<p class="act"><b>やること</b>利用者: 対象プランならChatGPT WorkやCodexで試す。通常のチャット画面では選べません。管理者: EnterpriseとEduでは管理者による有効化が要る場合がある。社内ルールに合うか確かめてから有効にする。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term":"KARTE","aliases":[],"full":"","short":"プレイドの顧客分析・Web接客ツール","long":"訪問者の行動を計測し、ポップアップやメールで一人ひとりに合わせた案内を出すプレイドのサービス。多くの企業が顧客データを取り込んでいたため、破られると被害が多数の企業に広がる。"},{"term":"クラウドファンディング","aliases":[],"full":"Crowdfunding","short":"ネットで支援金を集める仕組み","long":"企画を公開し、賛同した人からインターネット経由でお金を集める仕組み。支援者の連絡先が集まるため、運営サービスや外部ツールが破られると多くの人の情報が漏れる。"},{"term":"ロボアドバイザー","aliases":[],"full":"Robo-advisor","short":"自動で資産運用するサービス","long":"質問への回答をもとに、投資先の配分や売買を自動で行う資産運用のサービス。お金に関わる情報を扱うため、漏えい後は金融機関をかたる詐欺に特に注意が要る。"},{"term":"Java","aliases":["Java SE","Oracle Java"],"full":"","short":"業務システムで定番の言語","long":"銀行や官公庁、企業の業務システムやWebサービスで広く使われるプログラミング言語と、その実行環境。社内のあちこちに入っているため、穴が見つかると洗い出しだけで手間がかかる。"},{"term":"OpenJDK","aliases":[],"full":"Open Java Development Kit","short":"無料で使えるJavaの実行環境","long":"Javaを動かす無料の実行環境で、OracleやAmazon、Microsoftなどが自社版を配布している。配布元ごとに修正版の出る時期が違うため、どれを使うか把握が必要。"},{"term":"Java4Shell","aliases":[],"full":"","short":"Javaの乗っ取りの穴の通称","long":"Javaの実行環境のBase64処理にある脆弱性（CVE-2026-114938）の通称。対応CPUで動くアプリに細工したデータを送ると、ログインなしで乗っ取られる恐れがある。"},{"term":"Base64","aliases":[],"full":"","short":"データを文字に置き換える方式","long":"画像などのデータを、英数字と一部の記号だけの文字列に置き換える方式。メールやWebで広く使われ、外から届いたデータをこの方式で戻す処理は多くのアプリにある。"},{"term":"AVX-512","aliases":["AVX-512 VBMI"],"full":"Advanced Vector Extensions 512","short":"CPUの高速計算用の命令","long":"IntelやAMDの比較的新しいCPUが持つ、大量のデータを一度に計算するための命令群。今回の穴は、この命令を使う高速化処理にあり、対応CPUのサーバーだけが影響を受ける。"},{"term":"CPU","aliases":[],"full":"Central Processing Unit","short":"コンピューターの頭脳の部品","long":"プログラムの命令を実行する、コンピューターの中心となる部品。種類によって使える命令が異なるため、同じソフトでも動くCPUによって穴の影響が変わることがある。"},{"term":"起動オプション","aliases":[],"full":"","short":"ソフト起動時に渡す設定","long":"ソフトを起動するときに付けて渡す設定の指定。今回のJavaの件では、これで問題の高速化処理を止められるため、すぐ更新できない場合の一時的な守りになる。"},{"term":"修正版","aliases":[],"full":"","short":"穴をふさいだ新しい版","long":"見つかった穴や不具合を直したソフトの新しい版。公開されると攻撃者も差分から穴を調べられるため、当てるのが遅れるほど狙われやすくなる。"},{"term":"DSM","aliases":["DiskStation Manager"],"full":"DiskStation Manager","short":"Synology製NASの基本ソフト","long":"SynologyのNASで動く専用の基本ソフト。ファイル共有や追加アプリの土台で、古い版のまま使うと、外から乗っ取られてデータを暗号化される恐れがある。"},{"term":"BeeStation OS","aliases":["BeeStation","BSM"],"full":"","short":"Synology家庭向け機器の基本ソフト","long":"Synologyの家庭向けファイル保存機器BeeStationで動く基本ソフト。DSMと同じ穴を抱えていたため、こちらも修正版への更新が必要になる。"},{"term":"任意のコード","aliases":["任意のコード実行"],"full":"Arbitrary code execution","short":"攻撃者の好きなプログラム","long":"攻撃者が自由に選んだプログラムを、相手のコンピューター上で動かせてしまうこと。できることに制限がないため、乗っ取りや情報の持ち出しにつながる最も危険な穴の一つ。"},{"term":"LiteLLM","aliases":[],"full":"","short":"AIサービスへの接続をまとめるソフト","long":"複数のAIサービスへの接続を1か所にまとめ、鍵や利用量を管理するオープンソースの中継ソフト。各社AIの鍵を預かるため、乗っ取られると鍵の盗用や高額な不正利用につながる。"},{"term":"ガードレール","aliases":["Guardrails"],"full":"","short":"AIの入出力を検査する仕組み","long":"AIへの入力や回答をチェックし、不適切な内容や情報の持ち出しを止める仕組み。利用者が独自の検査を書ける機能は、隔離が甘いとそこから乗っ取られる恐れがある。"},{"term":"マスターキー","aliases":["master key"],"full":"","short":"全権限を持つ管理用の鍵","long":"ソフトのすべての操作を許す、管理用の最上位の鍵。初期設定の値のまま使うと、攻撃者に推測されて管理者として入られるため、必ず推測できない値に変える。"},{"term":"ChatGPT","aliases":[],"full":"","short":"OpenAIの対話型AI","long":"米OpenAIが提供する対話型の生成AIサービス。文章作成やコーディング、調べものに使われる。業務で使う場合は、入力した情報の扱いや使えるプランを社内で決めておく必要がある。"},{"term":"GPT-6.2","aliases":["GPT-6.2 Astra","GPT-6.2 Sol","Astra","Sol"],"full":"","short":"OpenAIの最新AIモデル","long":"OpenAIが2026年11月に出したAIモデル。難しい専門業務向けのAstraと日常業務向けのSolがある。費用対効果が上がった一方、サイバー関連の依頼には制限がかかる。"},{"term":"AIモデル","aliases":["モデル"],"full":"","short":"AIの頭脳にあたる部分","long":"文章や画像を理解・生成するために学習させたAIの本体。同じサービスでもモデルを替えると、得意分野や回答の速さ、費用が変わる。"},{"term":"ChatGPT Work","aliases":[],"full":"","short":"ChatGPTの仕事向けの画面","long":"ChatGPTで資料作りや表計算など、仕事の作業をまとめて進めるための画面。新しいモデルはここから先に使えることがあり、通常のチャット画面とは選べるモデルが異なる。"},{"term":"Codex","aliases":[],"full":"","short":"OpenAIのAIコード作成支援","long":"OpenAIが提供する、AIがプログラムの作成や修正を進める開発支援サービス。社内のコードを扱わせる場合は、どこまで読ませて書き換えさせるかの権限設計が要る。"},{"term":"脆弱性","aliases":["ぜい弱性"],"full":"Vulnerability","short":"ソフトの弱点（穴）","long":"ソフトや機器の作りの不備で、攻撃者に悪用されうる弱点。修正版が出たら早く当てないと、そこから侵入されたりデータを盗まれたりする。"},{"term":"実行環境","aliases":["ランタイム"],"full":"Runtime","short":"プログラムを動かすための土台","long":"書いたプログラムを実際に動かすために必要な土台のソフト。多くのアプリが同じ実行環境の上で動くため、ここに穴があると上で動くアプリがまとめて危険になる。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>サプライチェーン攻撃：</b>守りの固い本丸ではなく、委託先や外部サービスなど、つながっている所から入る攻撃。1つのサービスが破られると、それを使う多くの会社に被害が連鎖します。今日のKARTEの件では、1社への侵入から数十社の顧客情報の漏えいへ広がりました。外部サービスに渡す情報を最小限にすることが、被害を小さくする基本です。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://news.web.nhk/newsweb/na/nd-20261118de77979">NHK: DHC 顧客の個人情報1911万件流出 「プレイド」不正アクセスで</a></li>
+<li><a href="https://dhc-corporate.co.jp/cms_dH8vjpRq/wp-content/uploads/2026/11/2d7a589cb5008fbc262624582782444f.pdf">DHC: 外部サービスへの不正アクセスに関するお知らせ（11/18）</a></li>
+<li><a href="https://www.bk.mufg.jp/news/news2026/pdf/news1118.pdf">三菱UFJ銀行: お知らせ（11/18）</a></li>
+<li><a href="https://camp-fire.jp/news/2026/11/18/campfire">CAMPFIRE: KARTEへの不正アクセスに関するお知らせ（第二報、11/18）</a></li>
+<li><a href="https://company.meetsmore.com/page/notice-20261118-karte">ミツモア: お知らせ（11/18）</a></li>
+<li><a href="https://www.uniformnext.com/info/20261118/">ユニフォームネクスト: お知らせ（11/18）</a></li>
+<li><a href="https://ame-kaze-taiyo.jp/news/2026111811574585/">雨風太陽: お知らせ（11/18）</a></li>
+<li><a href="https://corp.wealthnavi.com/news/info/861">ウェルスナビ: お知らせ（11/18）</a></li>
+<li><a href="https://www.tr.mufg.jp/ippan/release/pdf_mutb/261118_2.pdf">三菱UFJ信託銀行: お知らせ（11/18）</a></li>
+<li><a href="https://kabu.com/company/pressrelease/20261118_1.html">三菱UFJ eスマート証券: お知らせ（11/18）</a></li>
+<li><a href="https://www.watch.impress.co.jp/docs/news/2157620.html">Impress Watch: 「KARTE」情報漏えい、JINS・三菱UFJなど多数の企業に影響</a></li>
+<li><a href="https://teriablog.com/karte-affected-companies-list-2026-11/">KARTE不正アクセスで情報漏えいを公表した企業の一覧（まとめ）</a></li>
+<li><a href="https://www.tenable.com/blog/java4shell-cve-2026-114938-frequently-asked-questions-about-openjdk-rce-vulnerability">Tenable: Java4Shell (CVE-2026-114938) FAQ</a></li>
+<li><a href="https://www.precursorsecurity.com/blog/java4shell-critical-openjdk-rce-vulnerability">Precursor Security: Java4Shell Live OpenJDK RCE Updates</a></li>
+<li><a href="https://calif.io/java4shell/">Calif: Java4Shell: Write once, RCE everywhere</a></li>
+<li><a href="https://www.jpcert.or.jp/newsflash/2026111801.html">JPCERT/CC: CyberNewsFlash「OpenJDKにおけるリモートコード実行につながる脆弱性（CVE-2026-114938）について」（11/18）</a></li>
+<li><a href="https://jvn.jp/vu/JVNVU99608534/">JVN: OpenJDKにおけるヒープベースのバッファオーバーフローの脆弱性</a></li>
+<li><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog">CISA: Known Exploited Vulnerabilities Catalog（CVE-2024-10441・CVE-2026-40217、11/18追加）</a></li>
+<li><a href="https://www.synology.com/ja-jp/company/news/article/C3RB3R">Synology: 古いDSMを対象としたランサムウェア攻撃に対し、DSMの更新を推奨（10/29）</a></li>
+<li><a href="https://www.rescana.com/post/synology-dsm-c3rb3r-ransomware-sa-24-20-prepare-now">Rescana: Synology DSM C3RB3R ransomware（Synology-SA-24:20の修正版）</a></li>
+<li><a href="https://labs.zenity.io/p/threat-actors-are-trying-to-use-litellm-s-guardrail-tester-to-run-code-as-root">Zenity Labs: Threat Actors Are Trying to use LiteLLM's Guardrail Tester to Run Code as Root</a></li>
+<li><a href="https://www.itmedia.co.jp/aiplus/article/2611/18/2000003282/">ITmedia AI+: 「GPT-6.2 Astra／Sol」登場 前世代超える性能を「コスト1/3で実現」</a></li>
+<li><a href="https://www.itmedia.co.jp/news/article/2611/18/2000003279/">ITmedia NEWS: OpenAI、「GPT-6.2」の「Astra」と「Sol」を公開</a></li>
+<li><a href="https://forest.watch.impress.co.jp/docs/news/2157295.html">窓の杜: OpenAI、「GPT-6.2 Astra」「GPT-6.2 Sol」を発表</a></li>
+</ul>
+</section>
