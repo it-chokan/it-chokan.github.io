@@ -1,0 +1,85 @@
+<!--meta {"date":"2026-11-20","title":"KARTE経由でシャープ326万件／nginxに乗っ取りの穴／T:Gemini 4 Neon登場","summary":"KARTE経由でシャープ326万件など漏えい公表が続く。nginxに乗っ取りの穴。Node-REDの悪用に注意喚起。Gemini 4 Neonが登場。","window":"11/19 05:30 〜 11/20 05:30 JST"} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-sev="high" data-tag="漏洩" data-short="【続報】漏えいまとめ 4件">
+<header><span class="sev">ヤバい</span><h3>【続報】KARTE経由でシャープ326万件など、個人情報の漏えい公表まとめ（4件）</h3></header>
+<p class="what">顧客分析ツール<span class="pn">KARTE</span>経由の漏えいで、家電大手の<span class="pn">シャープ</span>が11/19、公式通販の顧客情報が最大326万件漏れた恐れがあると公表しました。前号に載せきれなかった11/18の公表では、<span class="pn">Jリーグ</span>の約238万件と格安スマホ<span class="pn">mineo</span>の最大142万件が大きな事案です。</p>
+<p class="what">KARTEとは別件で、北海道の菓子メーカー<span class="pn">六花亭</span>は、通販の決済画面を改ざんされたと公表しました。入力されたカード番号やセキュリティコードが、約8,000件盗まれた恐れがあります。</p>
+<ul class="leaks">
+<li><b>六花亭オンラインショップ（菓子の通販）</b><span class="n">約8,000件</span>カード番号（全桁）・名義・有効期限・セキュリティコード。決済画面の改ざんで、10/21〜11/18に入力した人が対象（11/18公表）</li>
+<li><b>シャープ「COCORO STORE」（家電の公式通販）</b><span class="n">最大326万4,445件</span>年齢・生年月日・性別・KARTE上の識別ID。カード情報とパスワードは対象外</li>
+<li><b>Jリーグ（チケットサイトなど）</b><span class="n">約238万件</span>生年月日・性別・市区町村・内部の識別子。氏名やカード情報は対象外（11/18公表）</li>
+<li><b>mineo（格安スマホ、オプテージ）</b><span class="n">最大142万件</span>メールアドレス・性別・年代・郵便番号など。2020年1月以降の解約者の一部も対象（11/18公表）</li>
+</ul>
+<p class="ex"><b>たとえると</b>名簿を預けた倉庫の被害確認が続く中、別の店ではレジに盗み見の装置を付けられていた状況です。</p>
+<p class="act"><b>やること</b>利用者: 10/21〜11/18に<span class="pn">六花亭</span>の通販でカードを使った人は、明細を確かめる。身に覚えのない請求があれば、カード会社に連絡する。各社をかたる「お詫び」のメールやSMSのリンクは押さない。管理者: 自社の決済画面のファイルが勝手に書き換わっていないか、改ざん検知で見張る。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="話題" data-short="nginxに乗っ取りの穴">
+<header><span class="sev">ヤバい</span><h3>Webサーバー「nginx」に乗っ取りの穴「NGINX2Root」、JPCERT/CCも注意喚起。更新と再起動を</h3></header>
+<p class="what">世界で広く使われるWebサーバーソフト<span class="pn">nginx</span>に、ログインなしで外から乗っ取りができる恐れのある穴が見つかりました。開発元の米<span class="pn">F5</span>が11/18に修正版を出し、国内の調整機関<span class="pn">JPCERT/CC</span>も11/19に注意を呼びかけました。</p>
+<p class="what">中心の穴は、通信方式HTTP/2の処理にあります。ほかに深刻な穴4件も同時に直されました。11/19時点で悪用は確認されていませんが、米セキュリティ企業<span class="pn">Rapid7</span>が攻撃コードを公開しています。</p>
+<p class="ex"><b>たとえると</b>多くのビルにある受付機に、特定の書き方の伝票を渡すと機械ごと操れる欠陥が見つかった話です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-123007（CVSS 9.2）ほか、CVE-2026-123633 / 123634 / 121810 / 113425</dd>
+<dt>対象</dt><dd>nginx 1.30.7未満（安定版）・1.31.9未満（開発版）。NGINX Plus R33〜R36と37系の一部</dd>
+<dt>直った版</dt><dd>nginx 1.30.7 / 1.31.9、NGINX Plus 37.0.8.1 / 37.3.0.1（R33〜R36は修正版なし。37系へ移行）</dd>
+<dt>回避策</dt><dd>HTTP/2を止める（HTTP/2の2件だけに効く）</dd>
+</dl>
+<p class="act"><b>やること</b>管理者: <span class="pn">nginx</span>を直った版に更新し、設定の再読み込みではなく再起動する。再読み込みでは古いプログラムが動き続けるためです。機器やコンテナに組み込まれたnginxも洗い出す。</p>
+</article>
+
+<article class="topic" data-sev="high" data-tag="重大" data-short="Node-REDの悪用に注意">
+<header><span class="sev">ヤバい</span><h3>ログイン設定のないNode-REDが乗っ取りに悪用、JPCERT/CCが注意喚起</h3></header>
+<p class="what">処理の流れをブロックでつないで作るツール<span class="pn">Node-RED</span>で、ログイン設定のないものが乗っ取りに悪用されています。国内の調整機関<span class="pn">JPCERT/CC</span>が11/19、悪意あるフローが勝手に登録される問題として注意喚起を出しました。工場やIoT機器の制御にも使われるため、ネットから見える状態なら要注意です。</p>
+<p class="what">海外では10/30から悪用が確認されています。攻撃者は管理者のログイン設定adminAuthがない画面を探し、1回の通信でフローを登録します。不正なプログラムを動かし、再起動しても残るバックドアを仕込む例も報告されています。</p>
+<p class="ex"><b>たとえると</b>鍵のかかっていない工場の制御盤に、勝手に作業手順書を差し込まれるような話です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-58115（CVSS 10.0）</dd>
+<dt>悪用</dt><dd>10/30から海外で確認（米VulnCheckの観測）</dd>
+<dt>Siemens製品</dt><dd>SIMATIC IoT2050 Advanced は V4.3.4.1 以降で修正</dd>
+</dl>
+<p class="act"><b>やること</b>管理者: <span class="pn">Node-RED</span>のadminAuthを有効にし、ネットから直接つながらないようにする。登録済みのフローに、見覚えのない命令実行の部品（execノード）がないか確かめる。独<span class="pn">Siemens</span>の産業用小型PC<span class="pn">SIMATIC IoT2050</span>は、修正版に更新する。</p>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-sev="low" data-tag="話題" data-short="【11/18発表】Gemini 4 Neon">
+<header><span class="sev">注目</span><h3>【11/18発表】Google「Gemini 4 Neon」登場 上位モデル並みの賢さを低い費用で</h3></header>
+<p class="what"><span class="pn">Google</span>が11/18（米国時間）、対話型AI<span class="pn">Gemini</span>の新しいAIモデル「<span class="pn">Gemini 4 Neon</span>」を発表し、Gemini 4 Neonが登場しました。有料のGoogle AI ProとUltraの契約者は、発表当日からGeminiアプリで選べます。</p>
+<p class="what">最上位のCarbonと、軽量版のHydrogenの中間にあたるモデルです。Googleは、作業1件あたりの費用がCarbonより約32%安いとしています。開発者は、試作用の画面<span class="pn">Google AI Studio</span>や有料のAPIから使えます。</p>
+<p class="ex"><b>たとえると</b>一流に近い腕の料理人が、3割安い料金で厨房に入ったような話です。</p>
+<p class="act"><b>やること</b>利用者: Google AI Pro以上の契約者なら、Geminiアプリのモデル選択で試す。無料プランで使えるかは発表されていません。管理者: 企業向けの<span class="pn">Gemini for business</span>でも選べる。社内ルールに合うモデルか確かめてから許可する。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term":"KARTE","aliases":[],"full":"","short":"プレイドの顧客分析・Web接客ツール","long":"訪問者の行動を計測し、一人ひとりに合わせた案内を出すプレイドのサービス。多くの企業が顧客データを取り込んでいたため、破られると被害が多数の企業に広がる。"},{"term":"識別ID","aliases":["識別子"],"full":"","short":"利用者を見分けるための番号","long":"サービスが利用者を見分けるために付ける番号。単体では本人が分かりにくいが、生年月日など他の情報と組み合わさると、本人らしさを装った詐欺に使われやすくなる。"},{"term":"改ざん検知","aliases":[],"full":"","short":"ファイルの書き換えを見張る仕組み","long":"Webサイトのファイルが勝手に書き換えられていないかを、定期的に比べて見つける仕組み。決済画面の改ざんは見た目が変わらないため、これがないと何週間も気づけないことがある。"},{"term":"Webスキミング","aliases":["スキミング"],"full":"Web skimming","short":"決済画面で入力情報を盗む手口","long":"通販サイトの決済画面に不正なプログラムを仕込み、入力されたカード番号などを攻撃者に送る手口。画面は普段どおりに動くため、利用者も店も気づきにくい。"},{"term":"nginx","aliases":["NGINX","NGINX2Root"],"full":"","short":"定番のWebサーバーソフト","long":"世界の多くのWebサイトで使われる、Webページの配信や通信の中継を行うソフト。機器やコンテナにも組み込まれているため、穴が見つかると影響範囲の洗い出しが大変になる。"},{"term":"NGINX Plus","aliases":[],"full":"","short":"nginxの有料の企業向け版","long":"F5が販売するnginxの企業向けの有料版。無料版と同じ穴を抱えることが多く、古い版には修正版が出ない場合もあるため、サポート中の版へ移る必要がある。"},{"term":"HTTP/2","aliases":["HTTP/3"],"full":"Hypertext Transfer Protocol version 2","short":"Webの高速な通信方式","long":"WebページをHTTPSで速く届けるための通信方式。多くのサイトで初期設定で有効になっているため、その処理に穴があると、世界中の多数のサーバーが一度に狙われうる。"},{"term":"修正版","aliases":[],"full":"","short":"穴をふさいだ新しい版","long":"見つかった穴や不具合を直したソフトの新しい版。公開されると攻撃者も差分から穴を調べられるため、当てるのが遅れるほど狙われやすくなる。"},{"term":"フロー","aliases":["制御フロー"],"full":"Flow","short":"Node-REDで作る処理の流れ","long":"Node-REDで部品をつないで作る、自動で動く処理の流れ。命令を実行する部品も組み込めるため、他人に勝手に登録されると機器を乗っ取られる。"},{"term":"IoT","aliases":["IoT機器"],"full":"Internet of Things","short":"ネットにつながる機器","long":"センサーや家電、工場の設備など、インターネットにつながる機器の総称。初期設定のまま外から見える状態で置かれやすく、攻撃者に探されて乗っ取られることが多い。"},{"term":"adminAuth","aliases":[],"full":"","short":"Node-REDの管理者ログイン設定","long":"Node-REDの編集画面にログインを求める設定項目。初期状態では無効のことがあり、無効のままネットから見えると、誰でもフローを書き換えられてしまう。"},{"term":"execノード","aliases":["exec"],"full":"","short":"Node-REDで命令を実行する部品","long":"Node-REDのフローの中で、OSの命令を直接実行する部品。攻撃者はこれを使って不正なプログラムを落として動かすため、見覚えのない設置は侵入の痕跡になる。"},{"term":"SIMATIC IoT2050","aliases":["SIMATIC IoT2050 Advanced"],"full":"","short":"Siemensの産業用小型PC","long":"工場の設備とネットをつなぐ、Siemensの産業用の小型コンピューター。Node-REDを入れて使えるため、古い版のままだと今回の攻撃の対象になる。"},{"term":"AIモデル","aliases":["モデル"],"full":"","short":"AIの頭脳にあたる部分","long":"文章や画像を理解・生成するために学習させたAIの本体。同じサービスでもモデルを替えると、得意分野や回答の速さ、費用が変わる。"},{"term":"Gemini 4 Neon","aliases":["Neon"],"full":"","short":"Googleの新しい中位AIモデル","long":"Googleが2026年11月に出したAIモデル。最上位のCarbonに近い性能を、より低い費用で出すとされる。プログラミングや分析、業務の自動化に向く。"},{"term":"Gemini 4 Carbon","aliases":["Carbon","Gemini 4 Hydrogen","Hydrogen"],"full":"","short":"Gemini 4の最上位と軽量のモデル","long":"Googleの最新世代のAIモデルのうち、Carbonは最も賢い上位版、Hydrogenは速さと安さを重視した軽量版。用途と費用に合わせて使い分ける。"},{"term":"Google AI Pro","aliases":["Google AI Ultra","Ultra"],"full":"","short":"Googleの有料AIプラン","long":"GeminiなどGoogleのAI機能を多く使える個人向けの有料プラン。Ultraはさらに上位。新しいモデルは無料プランより先に有料プランで使えることが多い。"},{"term":"Google AI Studio","aliases":[],"full":"","short":"Gemini開発者向けの試作画面","long":"ブラウザでGeminiのモデルを試したり、アプリに組み込むための鍵を発行したりできる開発者向けの画面。業務で使う場合は、入力データの扱いを規約で確認する必要がある。"},{"term":"Gemini for business","aliases":[],"full":"","short":"企業向けのGemini","long":"企業や組織で使うためのGeminiの提供形態。管理者が使えるモデルや機能を設定できるため、新しいモデルが加わったら社内ルールに沿って許可を決める。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>Webスキミング：</b>通販サイトの決済画面に不正なプログラムを仕込み、入力されたカード番号などを盗む手口。画面は普段どおりに動くため、店も利用者も気づきにくいのが特徴です。今日の六花亭の件では、約4週間にわたり決済画面が改ざんされていた恐れがあります。店側は改ざん検知、利用者は明細の確認が基本の守りです。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://corporate.jp.sharp/info/notices/261119-a.html">シャープ: 公式通販「COCORO STORE」で利用する外部マーケティングツール「KARTE」への不正アクセスに関するお詫びとお知らせ（11/19）</a></li>
+<li><a href="https://news.web.nhk/newsweb/na/nd-20261119de78404">NHK: シャープや関電子会社で情報漏えい 「プレイド」不正アクセス</a></li>
+<li><a href="https://www.nikkei.com/article/DGXZQOUF1958Y0Z11C26A1000000/">日本経済新聞: シャープ、顧客情報320万件漏洩か プレイドへの不正アクセスで</a></li>
+<li><a href="https://www.jleague.jp/news/article/35384/">Jリーグ: お知らせ（11/18）</a></li>
+<li><a href="https://act1.co.jp/2026-11-19-08/">アクト: Jリーグ、KARTE不正アクセスでチケット利用者ら約238万件が漏えい</a></li>
+<li><a href="https://www.itmedia.co.jp/mobile/articles/2611/19/news056.html">ITmedia Mobile: mineoのユーザー情報が最大142万件漏えいした可能性 解約者も対象に</a></li>
+<li><a href="https://www.rokkatei.co.jp/news/info/20261118-25760/">六花亭: 「六花亭オンラインショップ」への不正アクセスによる個人情報流出の可能性に関するお詫びとお知らせ（11/18）</a></li>
+<li><a href="https://news.web.nhk/newsweb/na/nd-20261119de78663">NHK: 六花亭 不正アクセス被害 クレカ情報8000件流出か</a></li>
+<li><a href="https://www.techno-edge.net/article/2026/11/19/5774.html">TechnoEdge: 六花亭のオンラインショップに不正アクセス、カード情報約8000件が流出した恐れ</a></li>
+<li><a href="https://www.jpcert.or.jp/newsflash/2026111902.html">JPCERT/CC: CyberNewsFlash「nginxにおける複数の脆弱性（CVE-2026-123007など）について」（11/19）</a></li>
+<li><a href="https://www.tenable.com/blog/nginx2root-cve-2026-123007-frequently-asked-questions-about-five-critical-nginx">Tenable: NGINX2Root FAQ: Five vulnerabilities in NGINX (CVE-2026-123007)</a></li>
+<li><a href="https://www.precursorsecurity.com/blog/nginx2root-critical-nginx-rce-vulnerabilities">Precursor Security: NGINX2Root (CVE-2026-123007): Live nginx RCE Updates</a></li>
+<li><a href="https://thehackernews.com/2026/11/10-year-old-nginx-http2-flaw-lets.html">The Hacker News: 10-Year-Old NGINX HTTP/2 Flaw Lets Unauthenticated Attackers Execute Code on Servers</a></li>
+<li><a href="https://www.jpcert.or.jp/newsflash/2026111901.html">JPCERT/CC: CyberNewsFlash「認証を有効にしていないNode-REDに悪意ある制御フローが登録される問題（CVE-2026-58115）について」（11/19）</a></li>
+<li><a href="https://www.helpnetsecurity.com/2026/11/03/node-red-cve-2026-58115/">Help Net Security: Attackers exploit critical Node-RED flaw to deploy Linux bot and backdoors (CVE-2026-58115)</a></li>
+<li><a href="https://www.securityweek.com/critical-node-red-flaw-exploited-in-attacks/">SecurityWeek: Critical Node-RED Flaw Exploited in Attacks</a></li>
+<li><a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-neon/">Google: Introducing Gemini 4 Neon</a></li>
+<li><a href="https://www.itmedia.co.jp/news/article/2611/19/2000003315/">ITmedia NEWS: Google、「Gemini 4 Neon」発表 「Carbon」と「Hydrogen」の中間を担うモデル</a></li>
+<li><a href="https://www.watch.impress.co.jp/docs/news/2157702.html">Impress Watch: 「Gemini 4 Neon」公開 Carbonに次ぐ性能で他社最上位に迫る新モデル</a></li>
+</ul>
+</section>
