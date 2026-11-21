@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v13)
+"""Build the static site into _site/. (v14)
+v14: article pages /t/<date>-<id>.html (one topic per page, stable id = article data-id, else the topic number) /
+     <section class="deep"> inside an article = shown only on the article page (issue page stays a 5-min read) /
+     article page: facts open, matched sources, related past articles (same product names / terms), share bar
+     (X, LINE, Threads, Bluesky, Facebook, Hatena, copy, native share), follow + bookmark box, link to the issue /
+     meta "corrections" (note box + dateModified) and "withdrawn" (noindex stub page) /
+     search + glossary point to article pages / sitemap includes article pages.
 v13: SEO. Issues are kept forever (archive LIST still shows the last KEEP_DAYS days) /
      search covers the last SEARCH_DAYS days / glossary pages: /glossary/ + one page per term
      ("<term>とは") listing the issues that used it / tooltip sheet links to the term page /
@@ -40,7 +46,7 @@ SHOW_COUNTER = bool(ids.get("show_counter")) and bool(GC)
 # v10: official SNS (config.json "follow" overrides; empty string hides a button)
 FOLLOW = {"x": "https://x.com/it_chokan", "threads": "https://www.threads.com/@it_chokan",
           "instagram": "https://www.instagram.com/it_chokan", "facebook": "https://www.facebook.com/it.chokan",
-          "tiktok": "", "bluesky": ""} | (cfg.get("follow") or {})
+          "tiktok": "", "bluesky": "https://bsky.app/profile/it-chokan.bsky.social"} | (cfg.get("follow") or {})
 ICON_SRC = ROOT / "static" / "icon" / "source.png"   # square brand icon; rank variants are generated at build time
 HAS_ICON = False                                     # set by make_icons()
 
@@ -115,7 +121,7 @@ def title_html(title, slug=""):
 # ---- v7: allowlist sanitizer for AI-written post HTML ----
 ALLOWED = {
     "h2": {"class", "id"}, "h3": set(), "span": {"class"}, "b": set(), "strong": set(), "em": set(), "br": set(),
-    "article": {"class", "data-sev", "data-tag", "data-short"}, "header": set(), "section": {"class"},
+    "article": {"class", "data-sev", "data-tag", "data-short", "data-id"}, "header": set(), "section": {"class"},
     "p": {"class"}, "ul": {"class"}, "ol": set(), "li": set(), "dl": {"class"}, "dt": set(), "dd": set(),
     "a": {"href"}, "script": {"type", "id"},
 }
@@ -407,15 +413,23 @@ RBAR = """<div class="rbar" id="rbar" hidden><div class="rb-l"><span class="rb-t
 
 def render_issue(p, rel, url, gl_json, is_top=False, extra_head="", latest=None, issue_dates=()):
     """Full issue page. Used for posts/YYYY-MM-DD.html and for the top page."""
-    toc, tabs, body, items = enhance_body(p["body"], p["slug"])
+    toc, tabs, body, items = enhance_body(DEEP_RE.sub("", p["body"]), p["slug"])
     is_current = bool(latest) and latest["date"] == p["date"]
+    tps = topics_of(p)
+    _k = iter(range(len(tps)))
+    def _tlink(m):
+        i = next(_k, None)
+        if i is None:
+            return m.group(0)
+        return (f'<p class="tp-link"><a href="{rel}t/{tps[i]["slug"]}.html">この記事のページ（共有・関連記事）›</a></p></article>')
+    body = re.sub(r"</article>", _tlink, body)
     pub = p.get("published_jst") or (p["date"] + PUB_TIME)
     ld = jsonld({
         "@context": "https://schema.org", "@type": "NewsArticle",
         "headline": title_plain(p["title"])[:110],
         "description": p["summary"],
         "datePublished": p["date"] + PUB_TIME,
-        "dateModified": pub if "T" in pub else p["date"] + PUB_TIME,
+        "dateModified": modified_of(p, pub if "T" in pub else p["date"] + PUB_TIME),
         "inLanguage": "ja",
         "mainEntityOfPage": f"{BASE}posts/{p['slug']}.html",
         "url": f"{BASE}posts/{p['slug']}.html",
@@ -433,6 +447,7 @@ def render_issue(p, rel, url, gl_json, is_top=False, extra_head="", latest=None,
                     extra=ld + meta_date)
     cover, mins = cover_html(p, body, items, rel, is_current, latest)
     page += recovered_note(p)
+    page += corrections_html(p)
     page += cover
     page += counter_html(rel)
     page += toc + tabs
@@ -482,7 +497,9 @@ def search_entries(p):
         h = _plain(h3.group(1)) if h3 else f"topic {n}"
         body = inner[h3.end():] if h3 else inner
         tag = (re.search(r'data-tag="([^"]*)"', attrs) or [None, ""])[1]
-        out.append({"d": p["date"], "u": f"posts/{p['slug']}.html#t{n}", "h": h, "g": tag, "x": _plain(body)})
+        tp = topics_of(p)
+        u = f"t/{tp[n-1]['slug']}.html" if n <= len(tp) else f"posts/{p['slug']}.html#t{n}"
+        out.append({"d": p["date"], "u": u, "h": h, "g": tag, "x": _plain(DEEP_RE.sub("", body))})
     w = re.search(r'<section class="words">(.*?)</section>', p["body"], re.S)
     if w:
         out.append({"d": p["date"], "u": f"posts/{p['slug']}.html", "h": "今日のキーワード", "g": "", "x": _plain(re.sub(r"<h2>.*?</h2>", "", w.group(1), flags=re.S))})
@@ -650,6 +667,191 @@ def make_icons():
     HAS_ICON = True
     print("icons: rank0-4 + icon-192 generated")
 
+# ---- v14: article pages ----
+DEEP_RE = re.compile(r'<section class="deep">.*?</section>', re.S)
+_TOPIC_CACHE = {}
+
+def _id_slug(v):
+    v = re.sub(r"[^a-z0-9-]+", "-", (v or "").lower()).strip("-")
+    return v[:40].strip("-")
+
+def topics_of(p):
+    """Topics of an issue in page order: dict(n, slug, attrs, inner, cat, sev, tag, short, head, pn, terms)."""
+    if p["slug"] in _TOPIC_CACHE:
+        return _TOPIC_CACHE[p["slug"]]
+    rx, by = _term_regex()
+    out, cat, seen = [], "cat-incident", set()
+    tok = re.compile(r'<h2 class="part" id="(cat-[a-z]+)"|<article class="topic"([^>]*)>(.*?)</article>', re.S)
+    for m in tok.finditer(p["body"]):
+        if m.group(1):
+            cat = m.group(1); continue
+        attrs, inner = m.group(2), m.group(3)
+        n = len(out) + 1
+        g = lambda k: (re.search(k + r'="([^"]*)"', attrs) or [None, ""])[1]
+        sid = _id_slug(g("data-id"))
+        slug = f'{p["slug"]}-{sid}' if sid and sid not in seen else f'{p["slug"]}-{n}'
+        seen.add(sid)
+        h3 = re.search(r"<h3>(.*?)</h3>", inner, re.S)
+        head_t = _plain(h3.group(1)) if h3 else f"topic {n}"
+        pn = {html.unescape(x).strip() for x in re.findall(r'<span class="pn">(.*?)</span>', inner)}
+        terms = {by[t.group(0)] for t in rx.finditer(_plain(inner))}
+        out.append({"n": n, "slug": slug, "attrs": attrs, "inner": inner, "cat": cat, "sev": g("data-sev"),
+                    "tag": g("data-tag"), "short": g("data-short") or head_t, "head": head_t, "pn": pn, "terms": terms})
+    _TOPIC_CACHE[p["slug"]] = out
+    return out
+
+def modified_of(p, default):
+    cs = [c.get("at", "") for c in (p.get("corrections") or []) if isinstance(c, dict) and c.get("at")]
+    if not cs:
+        return default
+    t = max(cs).replace(" ", "T")
+    return t if "+" in t else t + ":00+09:00" if len(t) == 16 else t
+
+def corrections_html(p, topic=None):
+    rows = []
+    for c in p.get("corrections") or []:
+        if not isinstance(c, dict) or not c.get("note"):
+            continue
+        cid = str(c.get("id", ""))
+        if topic and cid and cid not in (topic["slug"].split(p["slug"] + "-", 1)[-1], f't{topic["n"]}', str(topic["n"])):
+            continue
+        rows.append(f'<li>{esc(c.get("at", ""))} {esc(c["note"])}</li>')
+    return f'<div class="corr"><b>訂正</b><ul>{"".join(rows)}</ul></div>\n' if rows else ""
+
+def follow_links():
+    fl = [(k, lab) for k, lab in (("x", "X"), ("threads", "Threads"), ("instagram", "Instagram"), ("facebook", "Facebook"), ("tiktok", "TikTok"), ("bluesky", "Bluesky")) if FOLLOW.get(k)]
+    return "".join(f'<a href="{esc(FOLLOW[k])}" rel="noopener" target="_blank">{lab}</a>' for k, lab in fl) + f'<a href="{BASE}feed.xml">RSS</a>'
+
+def share_html(url, text):
+    q = quote
+    tx = f"{text} #IT朝刊"
+    links = [("X", f"https://x.com/intent/post?text={q(tx)}&url={q(url)}"),
+             ("LINE", f"https://social-plugins.line.me/lineit/share?url={q(url)}"),
+             ("はてブ", f"https://b.hatena.ne.jp/add?mode=confirm&url={q(url)}"),
+             ("Threads", f"https://www.threads.net/intent/post?text={q(tx + ' ' + url)}"),
+             ("Bluesky", f"https://bsky.app/intent/compose?text={q(tx + ' ' + url)}"),
+             ("Facebook", f"https://www.facebook.com/sharer/sharer.php?u={q(url)}")]
+    a = "".join(f'<a href="{esc(h)}" rel="noopener" target="_blank">{lab}</a>' for lab, h in links)
+    return (f'<section class="share" aria-label="共有"><p class="sh-h">この記事を共有</p><div class="sh-btns">{a}'
+            f'<button type="button" id="shcopy" data-url="{esc(url)}">リンクをコピー</button>'
+            f'<button type="button" id="shnative" data-url="{esc(url)}" data-text="{esc(tx)}" hidden>その他</button></div>'
+            f'<p class="sh-msg" id="shmsg" aria-live="polite"></p></section>\n')
+
+def _sources_for(p, t):
+    m = re.search(r'<section class="src">(.*?)</section>', p["body"], re.S)
+    if not m:
+        return []
+    keys = [k for k in t["pn"] if len(k) >= 2]
+    lis = re.findall(r"<li>(.*?)</li>", m.group(1), re.S)
+    return [li for li in lis if any(k.lower() in _plain(li).lower() for k in keys)]
+
+def _related(t, p, all_topics, k=5):
+    sc = []
+    for q, tq in all_topics:
+        if tq is t:
+            continue
+        s = 3 * len(t["pn"] & tq["pn"]) + len(t["terms"] & tq["terms"])
+        if s >= 3:
+            sc.append((s, q["date"], q, tq))
+    sc.sort(key=lambda x: (x[0], x[1]), reverse=True)
+    return sc[:k]
+
+CAT_JA = {"cat-incident": "インシデント", "cat-tech": "新技術"}
+
+def render_topic(p, t, latest, gl_json, all_topics):
+    url = f"{BASE}t/{t['slug']}.html"
+    issue_url = f"../posts/{p['slug']}.html"
+    first = first_sentence(t["inner"], 120) or p["summary"]
+    pub = p["date"] + PUB_TIME
+    ld = jsonld({"@context": "https://schema.org", "@type": "NewsArticle", "headline": t["head"][:110],
+                 "description": first, "datePublished": pub, "dateModified": modified_of(p, pub), "inLanguage": "ja",
+                 "mainEntityOfPage": url, "url": url, "image": [f"{BASE}static/ogp.png"],
+                 "author": {"@type": "Organization", "name": cfg["site_title"], "url": BASE}, "publisher": PUBLISHER,
+                 "articleSection": CAT_JA.get(t["cat"], ""), "keywords": sorted(t["pn"] | t["terms"])[:20],
+                 "isPartOf": {"@type": "CreativeWork", "name": f"{cfg['site_title']} {jdate(p['date'])}号", "url": f"{BASE}posts/{p['slug']}.html"}}) + jsonld({
+                 "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": cfg["site_title"], "item": BASE},
+                    {"@type": "ListItem", "position": 2, "name": f"{jdate(p['date'])}号", "item": f"{BASE}posts/{p['slug']}.html"},
+                    {"@type": "ListItem", "position": 3, "name": t["short"], "item": url}]})
+    page = head(f"{t['head']}｜{cfg['site_title']}", first, url, "../", "article", extra=ld)
+    if latest and latest["date"] != p["date"]:
+        page += (f'<a class="latest-band" href="../">これは{jdate(p["date"])}の記事です。'
+                 f'<b>最新号（{jdate(latest["date"])}）はこちら →</b></a>\n')
+    sev = '<span class="tp-sev">ヤバい</span>' if t["sev"] == "high" else ""
+    page += (f'<p class="crumb"><a href="../">{esc(cfg["site_title"])}</a> › <a href="{issue_url}">{jdate(p["date"])}号</a></p>\n'
+             f'<p class="tp-meta">{sev}<span class="tp-cat">{CAT_JA.get(t["cat"], "")}</span>'
+             + (f'<span class="tp-tag">{esc(t["tag"])}</span>' if t["tag"] else "") + f'<span class="tp-date">{jdate(p["date"])} 7:00</span></p>\n')
+    page += corrections_html(p, t)
+    inner = re.sub(r"<header>.*?</header>", "", t["inner"], count=1, flags=re.S)
+    inner = re.sub(r'<dl class="facts">(.*?)</dl>', r'<details class="more" open><summary>詳細（対象・バージョン）</summary><dl class="facts">\1</dl></details>', inner, flags=re.S)
+    inner = inner.replace('<section class="deep">', '<section class="deep"><p class="deep-h">くわしく：対象かどうか・やること</p>', 1)
+    page += f'<div id="article"><article class="topic tp-page" id="t1"{t["attrs"]}>\n<h1 class="tp-h1">{esc(t["head"])}</h1>\n{inner}</article>\n'
+    srcs = _sources_for(p, t)
+    page += ('<section class="src"><h2>この記事の出典</h2><ul>' + "".join(f"<li>{s}</li>" for s in srcs) + "</ul>"
+             f'<p class="src-more"><a href="{issue_url}">この号の出典をすべて見る</a></p></section>\n') if srcs else \
+            f'<section class="src"><h2>出典</h2><p><a href="{issue_url}">この記事が載った号の出典一覧を見る</a></p></section>\n'
+    page += "</div>\n"
+    page += share_html(url, t["head"])
+    rel = _related(t, p, all_topics)
+    if rel:
+        page += ('<section class="rel"><h2>関連する記事</h2><ul class="archive">' + "".join(
+            f'<li><a href="{tq["slug"]}.html"><span class="ad">{jdate(q["date"])}</span><span class="at">{esc(tq["head"])}</span></a></li>'
+            for _, _, q, tq in rel) + "</ul></section>\n")
+    page += '<section class="gl"><h2>この記事の用語</h2><ul id="gllist"></ul><p class="gl-more"><a href="../glossary/">用語集をすべて見る</a></p></section>\n'
+    mins = read_minutes(DEEP_RE.sub("", p["body"]))
+    page += (f'<section class="fbox" aria-label="毎朝読む"><p class="fb-h">ITニュースは、毎朝5分で。</p>'
+             f'<p class="fb-s">IT朝刊は平日の朝7時に、その日に知るべきセキュリティ事件と新技術を、用語解説つきで届けます。</p>'
+             f'<div class="fb-cta"><a class="fb-main" href="{issue_url}">この記事が載った号を読む<small>{jdate(p["date"])}・{mins}分</small></a>'
+             f'<a class="fb-main alt" href="../">今日の朝刊を読む<small>毎朝7時に更新</small></a></div>'
+             f'<p class="kd-follow-h">明日の朝刊も受け取る</p><div class="kd-follow">{follow_links()}</div>'
+             f'<p class="kd-bm">ブックマークは <a href="{BASE}">トップページ</a> へ。いつ開いても最新号が読めます。</p>'
+             '<details class="kd-home"><summary>ホーム画面に追加する方法</summary><p>iPhone（Safari）: 共有ボタン → 「ホーム画面に追加」<br>Android（Chrome）: 右上の︙ → 「ホーム画面に追加」</p></details>'
+             '</section>\n')
+    tail = (f'</div>{SHEET}<script type="application/json" id="glossary-data">{gl_json}</script>'
+            f'<script src="{asset("../", "glossary.js")}"></script><script src="{asset("../", "topic.js")}"></script>'
+            '<a href="#" class="totop" id="totop" hidden aria-label="上へ戻る">▲</a></body>')
+    page += foot("../").replace("</div></body>", tail)
+    return page
+
+def build_topics(posts, latest, gl_json):
+    tdir = OUT / "t"
+    tdir.mkdir()
+    all_topics = [(p, t) for p in posts for t in topics_of(p)]
+    urls = []
+    for p, t in all_topics:
+        (tdir / f"{t['slug']}.html").write_text(render_topic(p, t, latest, gl_json, all_topics), encoding="utf-8")
+        urls.append((f"{BASE}t/{t['slug']}.html", modified_of(p, p["date"])[:10]))
+    live = {t["slug"] for _, t in all_topics}
+    n_w = 0
+    for p in posts:
+        for w in p.get("withdrawn") or []:
+            wid = _id_slug(str(w.get("id", ""))) if isinstance(w, dict) else ""
+            if not wid:
+                continue
+            slug = f'{p["slug"]}-{wid}'
+            if slug in live:
+                continue
+            page = head(f"この記事は取り下げました｜{cfg['site_title']}", cfg["site_description"], "", "../", "website", robots="noindex")
+            reason = esc(w.get("note", "")) if isinstance(w, dict) else ""
+            page += (f'<section class="nf"><h1 class="title"><span class="line sec">この記事は取り下げました</span></h1>'
+                     f'<p>{esc(w.get("title", "")) if isinstance(w, dict) else ""}</p><p>{reason}</p>'
+                     f'<a class="nf-card" href="{BASE}"><span class="go">今日の朝刊を読む →</span></a>'
+                     f'<p><a href="../posts/{p["slug"]}.html">{jdate(p["date"])}号を読む</a></p></section>\n' + foot("../"))
+            (tdir / f"{slug}.html").write_text(page, encoding="utf-8")
+            n_w += 1
+    print(f"articles: {len(all_topics)} pages, {n_w} withdrawn stubs")
+    return urls
+
+TOPIC_JS = r"""(()=>{
+const c=document.getElementById('shcopy'),n=document.getElementById('shnative'),m=document.getElementById('shmsg');
+const say=t=>{if(m){m.textContent=t;setTimeout(()=>{m.textContent=''},2500)}};
+if(c)c.addEventListener('click',()=>{const u=c.dataset.url;
+ (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>say('リンクをコピーしました')).catch(()=>{prompt('URL',u)})});
+if(n&&navigator.share){n.hidden=false;n.addEventListener('click',()=>{navigator.share({title:document.title,text:n.dataset.text,url:n.dataset.url}).catch(()=>{})})}
+const tt=document.getElementById('totop');if(tt){addEventListener('scroll',()=>{tt.hidden=scrollY<600},{passive:true})}
+})();
+"""
+
 # ---- v13: glossary pages ----
 PUBLISHER = {"@type": "Organization", "name": cfg["site_title"], "alternateName": "it-chokan", "url": BASE,
              "logo": {"@type": "ImageObject", "url": f"{BASE}static/icon/icon-192.png"}}
@@ -687,7 +889,9 @@ def term_usage(posts):
             h3 = re.search(r"<h3>(.*?)</h3>", inner, re.S)
             h = _plain(h3.group(1)) if h3 else f"topic {n}"
             for term in {by[m.group(0)] for m in rx.finditer(_plain(inner))}:
-                use.setdefault(term, []).append((p["date"], f"../posts/{p['slug']}.html#t{n}", h))
+                tp = topics_of(p)
+                u = f"../t/{tp[n-1]['slug']}.html" if n <= len(tp) else f"../posts/{p['slug']}.html#t{n}"
+                use.setdefault(term, []).append((p["date"], u, h))
     return use
 
 def build_glossary(posts):
@@ -865,12 +1069,17 @@ def build():
         f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>{esc(cfg["site_title"])}</title><link>{BASE}</link><description>{esc(cfg["site_description"])}</description>{items}</channel></rss>',
         encoding="utf-8")
 
+    # article pages (v14)
+    (OUT / "static" / "topic.js").write_text(TOPIC_JS, encoding="utf-8")
+    VER["topic.js"] = hashlib.sha1(TOPIC_JS.encode()).hexdigest()[:8]
+    tp_urls = build_topics(posts, latest, gl_json)
+
     # glossary (v13)
     gl_urls = build_glossary(posts)
 
     # sitemap + robots
     ld = latest["date"] if latest else ""
-    urls = [(BASE, ld), (f"{BASE}archive/", ld), (f"{BASE}search/", ld), (f"{BASE}about.html", ""), (f"{BASE}glossary/", ld)] + [(f"{BASE}posts/{p['slug']}.html", p["date"]) for p in posts] + gl_urls
+    urls = [(BASE, ld), (f"{BASE}archive/", ld), (f"{BASE}search/", ld), (f"{BASE}about.html", ""), (f"{BASE}glossary/", ld)] + [(f"{BASE}posts/{p['slug']}.html", p["date"]) for p in posts] + tp_urls + gl_urls
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for u, d in urls:
         sm += f"<url><loc>{u}</loc>" + (f"<lastmod>{d}</lastmod>" if d else "") + "</url>\n"

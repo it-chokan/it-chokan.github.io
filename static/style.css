@@ -263,3 +263,31 @@ ul.archive .rc{background:#ffd23f;border-radius:6px;padding:0 6px;font-size:.7re
 .sheet .sg[hidden]{display:none}
 .crumb{margin:.2em 0 .4em;font-size:.85rem}
 .gl-full,.gl-alias{font-size:.9rem;opacity:.85}
+
+/* v14 article pages */
+.tp-link{margin:.6em 0 0;font-size:.85rem;text-align:right}
+.tp-link a{font-weight:700}
+.tp-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:.2em 0 .6em;font-size:.8rem;font-weight:700}
+.tp-meta span{border:1.5px solid var(--ink);border-radius:6px;padding:0 6px;background:var(--paper)}
+.tp-meta .tp-sev{background:var(--pink);color:#fff}
+.tp-meta .tp-date{border:none;background:none;color:var(--muted)}
+.tp-h1{font-size:clamp(1.15rem,5vw,1.45rem);line-height:1.5;margin:.2em 0 .6em;font-weight:800}
+.deep{margin:12px 0;padding:12px 14px;border:2px dashed var(--ink);border-radius:12px;background:#fffbe0}
+.deep .deep-h{margin:0 0 .4em;font-weight:800}
+.deep ul{margin:.3em 0 0;padding-left:1.3em}
+.corr{margin:8px 0;padding:8px 12px;border:2px solid var(--orange);border-radius:10px;background:#fff4ea;font-size:.9rem}
+.corr ul{margin:.2em 0 0;padding-left:1.2em}
+.share{margin:18px 0;text-align:center}
+.sh-h{margin:0 0 8px;font-weight:800}
+.sh-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.sh-btns a,.sh-btns button{flex:1 1 28%;min-width:84px;min-height:44px;display:flex;align-items:center;justify-content:center;border:2px solid var(--ink);border-radius:12px;background:var(--paper);color:var(--ink);font:inherit;font-weight:800;font-size:.85rem;text-decoration:none;cursor:pointer}
+.sh-btns button[hidden]{display:none}
+.sh-msg{min-height:1.2em;margin:6px 0 0;font-size:.85rem}
+.rel h2,.gl-more{margin-top:18px}
+.fbox{margin:22px 0;padding:18px 16px;text-align:center;border:3px solid var(--ink);border-radius:18px;background:var(--paper);box-shadow:5px 5px 0 var(--ink)}
+.fb-h{margin:0;font-size:1.15rem;font-weight:800}
+.fb-s{margin:.4em 0 12px;font-size:.9rem}
+.fb-cta{display:flex;flex-direction:column;gap:8px}
+.fb-main{display:block;padding:10px;border:2px solid var(--ink);border-radius:12px;background:var(--yellow);color:var(--ink);font-weight:800;text-decoration:none}
+.fb-main.alt{background:var(--lime)}
+.fb-main small{display:block;font-weight:700;font-size:.75rem}
