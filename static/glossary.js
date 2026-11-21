@@ -45,6 +45,7 @@ function open(btn){
   f.textContent=full;f.hidden=!full;
   document.getElementById('sS').textContent=t.short;
   document.getElementById('sL').textContent=t.long;
+  const g=document.getElementById('sG');if(g){if(t.u){g.href=t.u;g.hidden=false}else g.hidden=true}
   sheet.hidden=false;
 }
 function close(){sheet.hidden=true;if(curBtn)curBtn.classList.remove('on');curBtn=null}

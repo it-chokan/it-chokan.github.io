@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v12)
+"""Build the static site into _site/. (v13)
+v13: SEO. Issues are kept forever (archive LIST still shows the last KEEP_DAYS days) /
+     search covers the last SEARCH_DAYS days / glossary pages: /glossary/ + one page per term
+     ("<term>とは") listing the issues that used it / tooltip sheet links to the term page /
+     WebSite JSON-LD alternateName "it-chokan" + publisher logo / sitemap includes glossary.
 v12: follow buttons add Instagram / Facebook / TikTok (X on by default). Empty string in config.json "follow" hides a button.
      TikTok stays hidden until the username is changed to it_chokan (after 2026-12-15).
 v11: kandoku card note adds "private browsing loses stamps when closed".
@@ -20,6 +24,7 @@ v9: full-text search. search.json (one entry per topic, NFKC-normalized plain te
     + static/search.js (substring AND match, works for Japanese without word splitting).
 """
 import json, os, re, shutil, html, pathlib, unicodedata, hashlib
+from urllib.parse import quote
 from datetime import datetime, date, timedelta, timezone
 from html.parser import HTMLParser
 
@@ -41,7 +46,8 @@ HAS_ICON = False                                     # set by make_icons()
 
 JST = timezone(timedelta(hours=9))
 PUB_TIME = "T07:00:00+09:00"   # publish time of the daily post (JST)
-KEEP_DAYS = 90                 # archive length (days, including today)
+KEEP_DAYS = 90                 # archive LIST length (days, including today). v13: issue pages are never deleted
+SEARCH_DAYS = 365              # v13: search.json covers this many days (keeps the search page light)
 CLOSED_AFTER_HOUR = 10         # today's issue is shown as 休刊 only after 10:00 JST
 _now = os.environ.get("BUILD_NOW_JST")  # for tests: "2026-11-10T09:00"
 NOW = datetime.fromisoformat(_now).replace(tzinfo=JST) if _now else datetime.now(JST)
@@ -269,15 +275,15 @@ def head(title, desc, url, rel, og_type="article", extra="", robots=""):
 <link rel="stylesheet" href="{asset(rel, 'style.css')}">{icons}{extra}{gc}
 </head><body><div class="wrap">
 <div class="mast"><a href="{rel}"><p class="logo">{logo}{esc(cfg['site_title'])}<span class="rank-chip" id="rankchip" hidden></span></p></a><span class="tag">// security × tech, every morning</span></div>
-<nav class="navlinks" aria-label="サイト内"><a href="{rel}">今日の朝刊</a><a href="{rel}archive/">バックナンバー</a><a href="{rel}search/">検索</a></nav>
+<nav class="navlinks" aria-label="サイト内"><a href="{rel}">今日の朝刊</a><a href="{rel}archive/">バックナンバー</a><a href="{rel}glossary/">用語集</a><a href="{rel}search/">検索</a></nav>
 """
 
 def foot(rel):
-    return f"""<footer>記事は公開時点の情報です。対応する前に、出典の公式発表を確認してください。黄色いマーカーの用語はタップで解説が出ます。<br><a href="{rel}archive/">バックナンバー（{KEEP_DAYS}日分）</a> ・ <a href="{rel}about.html">このサイトについて</a></footer>
+    return f"""<footer>記事は公開時点の情報です。対応する前に、出典の公式発表を確認してください。黄色いマーカーの用語はタップで解説が出ます。<br><a href="{rel}archive/">バックナンバー</a> ・ <a href="{rel}glossary/">用語集</a> ・ <a href="{rel}about.html">このサイトについて</a></footer>
 </div></body></html>"""
 
 SHEET = """<div class="sheet" id="sheet" hidden role="dialog" aria-live="polite"><div class="in">
-<div class="t"><b id="sT"></b><i id="sF" hidden></i></div><p class="s" id="sS"></p><p id="sL"></p>
+<div class="t"><b id="sT"></b><i id="sF" hidden></i></div><p class="s" id="sS"></p><p id="sL"></p><a id="sG" class="sg" hidden>この用語をくわしく →</a>
 <div class="ctrl"><button class="btn" id="sX" type="button">閉じる</button></div>
 </div></div>"""
 
@@ -298,9 +304,6 @@ def load_posts():
             d = date.fromisoformat(p.stem)
         except ValueError:
             print(f"WARN skip (bad file name): {p.name}")
-            continue
-        if d < CUTOFF:
-            print(f"INFO skip (older than {KEEP_DAYS} days): {p.name}")
             continue
         txt = p.read_text(encoding="utf-8-sig")
         m = re.match(r"\s*<!--meta\s+(\{.*?\})\s*-->", txt, re.S)
@@ -418,7 +421,7 @@ def render_issue(p, rel, url, gl_json, is_top=False, extra_head="", latest=None,
         "url": f"{BASE}posts/{p['slug']}.html",
         "image": [f"{BASE}static/ogp.png"],
         "author": {"@type": "Organization", "name": cfg["site_title"], "url": BASE},
-        "publisher": {"@type": "Organization", "name": cfg["site_title"], "url": BASE},
+        "publisher": PUBLISHER,
         "about": [re.sub(r"<[^>]+>", "", s) for _, _, s, _ in items],
     })
     meta_date = f'<meta name="it-chokan-date" content="{p["date"]}">'
@@ -436,7 +439,7 @@ def render_issue(p, rel, url, gl_json, is_top=False, extra_head="", latest=None,
     page += f'<div id="article">{body}</div>\n'
     page += '<section class="gl"><h2>この記事の用語</h2><ul id="gllist"></ul></section>\n'
     page += kandoku_html(p, rel, is_current)
-    page += f'<p class="more-issues"><a href="{rel}archive/">過去の朝刊を見る（{KEEP_DAYS}日分）</a></p>\n'
+    page += f'<p class="more-issues"><a href="{rel}archive/">過去の朝刊を見る</a> ・ <a href="{rel}glossary/">IT用語集</a></p>\n'
     tail = (f'</div>{SHEET}{RBAR}<script type="application/json" id="glossary-data">{gl_json}</script>'
             + issue_data(p, rel, is_current, mins, issue_dates) +
             f'<script src="{asset(rel, "glossary.js")}"></script><script src="{asset(rel, "nav.js")}"></script><script src="{asset(rel, "stamp.js")}"></script>'
@@ -489,7 +492,7 @@ SEARCH_BODY = f"""<h1 class="title"><span class="line sec">記事を検索</span
 <div class="search">
 <label for="q" class="sr">検索語</label>
 <input id="q" type="search" placeholder="例: Chrome、ニトリ、CVE-2026、漏えい" autocomplete="off" enterkeyhint="search">
-<p class="hint">過去{KEEP_DAYS}日分の記事から探します。スペースで区切ると、すべての語を含む記事に絞り込みます。</p>
+<p class="hint">過去1年分の記事から探します。スペースで区切ると、すべての語を含む記事に絞り込みます。</p>
 <p class="count" id="count" aria-live="polite"></p>
 <ol class="results" id="results"></ol>
 </div>
@@ -499,7 +502,7 @@ ABOUT_BODY = f"""<h1 class="title"><span class="line sec">このサイトにつ�
 <div id="article">
 <section class="about">
 <h2>IT朝刊とは</h2>
-<p>IT初心者から上級者まで、その日に知るべきITのニュースを、1ページ・5分で確認できるようにまとめたサイトです。平日の毎朝7時ごろに更新します。</p>
+<p>IT朝刊（アイティーちょうかん／英字表記: it-chokan）は、IT初心者から上級者まで、その日に知るべきITのニュースを、1ページ・5分で確認できるようにまとめたサイトです。平日の毎朝7時ごろに更新します。専門用語はタップで解説が出るほか、<a href="glossary/">用語集</a>でまとめて調べられます。</p>
 <h2>記事の選び方</h2>
 <p>前の営業日の朝から公表された情報を対象に、話題性・新しさ・重大度の3つで点数を付け、点数の高い順に最大6件を載せます。実際に悪用されている脆弱性や大規模な被害を優先し、情報漏えいの公表は1つの記事にまとめます。</p>
 <h2>事実確認と出典</h2>
@@ -507,7 +510,7 @@ ABOUT_BODY = f"""<h1 class="title"><span class="line sec">このサイトにつ�
 <h2>作り方</h2>
 <p>記事の候補探し・要約・用語解説にはAIを使い、上の基準と一次情報の確認ルールに沿って作成しています。誤りに気づいた場合は、記事を訂正して差し替えます。</p>
 <h2>掲載期間と休刊</h2>
-<p>記事は{KEEP_DAYS}日間掲載します。配信トラブルで記事を作れなかった日は、バックナンバーに「休刊」と表示します。</p>
+<p>過去の号はずっと残します。バックナンバーの一覧には直近{KEEP_DAYS}日分を表示し、それより前の号は検索や用語集から読めます。配信トラブルで記事を作れなかった日は、バックナンバーに「休刊」と表示します。</p>
 <h2>訂正・ご連絡</h2>
 <p>記事の誤りや、掲載内容についてのご連絡は、<a href="https://github.com/it-chokan/it-chokan.github.io/issues">GitHub の Issues</a> からお願いします。確認のうえ、必要に応じて訂正します。</p>
 <h2>アクセス解析</h2>
@@ -647,6 +650,117 @@ def make_icons():
     HAS_ICON = True
     print("icons: rank0-4 + icon-192 generated")
 
+# ---- v13: glossary pages ----
+PUBLISHER = {"@type": "Organization", "name": cfg["site_title"], "alternateName": "it-chokan", "url": BASE,
+             "logo": {"@type": "ImageObject", "url": f"{BASE}static/icon/icon-192.png"}}
+TERM_URL = {}   # term -> file slug (unquoted)
+
+def term_slugs():
+    out, seen = {}, set()
+    for t in glossary["terms"]:
+        s = unicodedata.normalize("NFKC", t["term"]).strip().lower()
+        s = s.replace("+", "plus").replace("#", "sharp")
+        s = re.sub(r"[^0-9a-z぀-ヿ㐀-鿿._-]+", "-", s).strip("-.") or "term"
+        base, i = s, 2
+        while s in seen:
+            s = f"{base}-{i}"; i += 1
+        seen.add(s); out[t["term"]] = s
+    return out
+
+def _term_regex():
+    by = {}
+    for t in glossary["terms"]:
+        for k in [t["term"], *(t.get("aliases") or [])]:
+            if k:
+                by.setdefault(unicodedata.normalize("NFKC", k), t["term"])
+    keys = sorted(by, key=len, reverse=True)
+    pat = "|".join((r"(?<![A-Za-z0-9-])" + re.escape(k) + r"(?![A-Za-z0-9-])") if re.fullmatch(r"[\x20-\x7e]+", k) else re.escape(k) for k in keys)
+    return re.compile(pat), by
+
+def term_usage(posts):
+    """term -> [(date, url, headline)] newest first. Same longest-first matching as glossary.js."""
+    rx, by = _term_regex()
+    use = {}
+    for p in posts:
+        arts = re.findall(r'<article class="topic"([^>]*)>(.*?)</article>', p["body"], re.S)
+        for n, (_, inner) in enumerate(arts, 1):
+            h3 = re.search(r"<h3>(.*?)</h3>", inner, re.S)
+            h = _plain(h3.group(1)) if h3 else f"topic {n}"
+            for term in {by[m.group(0)] for m in rx.finditer(_plain(inner))}:
+                use.setdefault(term, []).append((p["date"], f"../posts/{p['slug']}.html#t{n}", h))
+    return use
+
+def build_glossary(posts):
+    gdir = OUT / "glossary"
+    gdir.mkdir()
+    use = term_usage(posts)
+    full_map = {}
+    fp = ROOT / "static" / "glossary_full.json"
+    if fp.exists():
+        try: full_map = json.loads(fp.read_text(encoding="utf-8-sig"))
+        except ValueError: pass
+    set_ld = {"@type": "DefinedTermSet", "name": f"{cfg['site_title']} 用語集", "url": f"{BASE}glossary/"}
+    urls, rows = [], []
+    for t in glossary["terms"]:
+        term, slug = t["term"], TERM_URL[t["term"]]
+        url = f"{BASE}glossary/{quote(slug)}.html"
+        full = t.get("full") or full_map.get(term, "")
+        aliases = [a for a in (t.get("aliases") or []) if a and a != full]
+        hits = use.get(term, [])
+        name = f"{term}（{full}）" if full else term
+        desc = f"{name}とは、{t['short']}のこと。{t['long']}"
+        desc = desc if len(desc) <= 120 else desc[:119] + "…"
+        ld = jsonld({"@context": "https://schema.org", "@type": "DefinedTerm", "name": term,
+                     "alternateName": [x for x in [full, *aliases] if x], "description": t["long"],
+                     "url": url, "inDefinedTermSet": set_ld}) + jsonld({
+                     "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+                        {"@type": "ListItem", "position": 1, "name": cfg["site_title"], "item": BASE},
+                        {"@type": "ListItem", "position": 2, "name": "用語集", "item": f"{BASE}glossary/"},
+                        {"@type": "ListItem", "position": 3, "name": term, "item": url}]})
+        # terms not used in any article yet: reachable from tooltips, but kept out of search results (thin page)
+        page = head(f"{term}とは？意味をやさしく解説｜{cfg['site_title']} 用語集", desc, url, "../", "article", extra=ld,
+                    robots="" if hits else "noindex,follow")
+        page += f'<p class="crumb"><a href="../">{esc(cfg["site_title"])}</a> › <a href="./">用語集</a></p>\n'
+        page += f'<h1 class="title"><span class="line sec">{esc(term)}とは</span></h1>\n'
+        page += f'<p class="lead">{esc(t["short"])}</p>\n<div id="article"><section class="about">\n'
+        if full:
+            page += f'<p class="gl-full">正式名称: {esc(full)}</p>\n'
+        page += f'<h2>かんたんに言うと</h2><p>{esc(name)}は、{esc(t["short"])}のことです。</p>\n'
+        page += f'<h2>もう少しくわしく</h2><p>{esc(t["long"])}</p>\n'
+        if aliases:
+            page += f'<p class="gl-alias">別の呼び方・表記: {esc("、".join(aliases))}</p>\n'
+        page += f'<h2>IT朝刊で「{esc(term)}」が出てきた記事</h2>\n'
+        if hits:
+            page += '<ul class="archive">' + "".join(
+                f'<li><a href="{u}"><span class="ad">{jdate(d)}</span><span class="at">{esc(h)}</span></a></li>'
+                for d, u, h in hits[:30]) + "</ul>\n"
+        else:
+            page += "<p>まだ記事はありません。</p>\n"
+        page += (f'<p class="more-issues"><a href="../">今日の朝刊を読む</a> ・ <a href="./">用語集の一覧へ</a></p>\n'
+                 "</section></div>\n" + foot("../"))
+        (gdir / f"{slug}.html").write_text(page, encoding="utf-8")
+        if hits:
+            urls.append((url, hits[0][0]))
+        rows.append((term, slug, t["short"], len(hits)))
+    # index
+    asc = sorted([r for r in rows if re.match(r"[0-9A-Za-z]", r[0])], key=lambda r: r[0].lower())
+    jp = sorted([r for r in rows if not re.match(r"[0-9A-Za-z]", r[0])], key=lambda r: r[0])
+    def ul(rs):
+        return '<ul class="archive">' + "".join(
+            f'<li><a href="{quote(s)}.html"><span class="ad">{esc(term)}</span><span class="at">{esc(short)}</span></a></li>'
+            for term, s, short, _ in rs) + "</ul>\n"
+    ld = jsonld(dict(set_ld, **{"@context": "https://schema.org", "hasDefinedTerm": [
+        {"@type": "DefinedTerm", "name": term, "url": f"{BASE}glossary/{quote(s)}.html"} for term, s, _, _ in rows]}))
+    page = head(f"IT用語集（{len(rows)}語）｜{cfg['site_title']}",
+                f"セキュリティ・新技術のニュースに出てくるIT用語{len(rows)}語を、新人エンジニアにもわかる一言でやさしく解説。CVE・KEV・ランサムウェアなど。",
+                f"{BASE}glossary/", "../", "website", extra=ld)
+    page += (f'<h1 class="title"><span class="line sec">IT用語集</span></h1>\n'
+             f'<p class="lead">IT朝刊の記事に出てきた用語{len(rows)}語を、ひと言でやさしく解説します。</p>\n'
+             f'<h2 class="part">英数字</h2>\n{ul(asc)}<h2 class="part">日本語</h2>\n{ul(jp)}' + foot("../"))
+    (gdir / "index.html").write_text(page, encoding="utf-8")
+    print(f"glossary: {len(rows)} terms, {sum(1 for r in rows if r[3])} with articles")
+    return urls
+
 def manifest():
     icons = ([{"src": f"{BASE}static/icon/icon-192.png", "sizes": "192x192", "type": "image/png"}] if HAS_ICON else [])
     return json.dumps({"name": cfg["site_title"], "short_name": cfg["site_title"], "start_url": BASE, "scope": BASE,
@@ -667,8 +781,10 @@ def build():
     for f in (OUT / "static").iterdir():
         if f.is_file() and f.suffix in (".css", ".js"):
             VER[f.name] = hashlib.sha1(f.read_bytes()).hexdigest()[:8]
-    gl_json = json.dumps(glossary, ensure_ascii=False).replace("</", "<\\/")
     posts = load_posts()
+    TERM_URL.update(term_slugs())
+    gl_out = dict(glossary, terms=[dict(t, u=f"{BASE}glossary/{quote(TERM_URL[t['term']])}.html") for t in glossary["terms"]])
+    gl_json = json.dumps(gl_out, ensure_ascii=False).replace("</", "<\\/")
     latest = posts[0] if posts else None
     issue_dates = sorted(p["date"] for p in posts)
 
@@ -678,8 +794,10 @@ def build():
         (OUT / "posts" / f"{p['slug']}.html").write_text(render_issue(p, "../", url, gl_json, latest=latest, issue_dates=issue_dates), encoding="utf-8")
 
     # top = latest issue in full
-    site_ld = jsonld({"@context": "https://schema.org", "@type": "WebSite", "name": cfg["site_title"], "url": BASE,
-                      "inLanguage": "ja", "description": cfg["site_description"]})
+    site_ld = jsonld({"@context": "https://schema.org", "@type": "WebSite", "name": cfg["site_title"],
+                      "alternateName": ["it-chokan", "IT朝刊（it-chokan）", "アイティーちょうかん"], "url": BASE,
+                      "inLanguage": "ja", "description": cfg["site_description"],
+                      "publisher": PUBLISHER})
     if latest:
         page = render_issue(latest, "", BASE, gl_json, is_top=True, extra_head=site_ld, latest=latest, issue_dates=issue_dates)
     else:
@@ -689,8 +807,8 @@ def build():
 
     # archive
     rows = archive_rows(posts)
-    page = head(f"バックナンバー｜{cfg['site_title']}", f"{cfg['site_title']}の過去{KEEP_DAYS}日分の朝刊一覧。", f"{BASE}archive/", "../", "website")
-    page += f'<h1 class="title"><span class="line sec">バックナンバー</span></h1>\n<p class="lead">過去{KEEP_DAYS}日分の朝刊です。それより前の号は掲載を終了しています。</p>\n<ul class="archive">\n'
+    page = head(f"バックナンバー｜{cfg['site_title']}", f"{cfg['site_title']}の直近{KEEP_DAYS}日分の朝刊一覧。", f"{BASE}archive/", "../", "website")
+    page += f'<h1 class="title"><span class="line sec">バックナンバー</span></h1>\n<p class="lead">直近{KEEP_DAYS}日分の朝刊です。それより前の号は、<a href="../search/">検索</a>や<a href="../glossary/">用語集</a>から読めます。</p>\n<ul class="archive">\n'
     month = None
     for d, p in rows:
         if (d.year, d.month) != month:
@@ -718,7 +836,7 @@ def build():
     # 404 : turn dead links (incl. issues past 90 days) into a way to today's issue
     page = head(f"ページが見つかりません｜{cfg['site_title']}", cfg["site_description"], "", BASE, "website", robots="noindex")
     page += '<section class="nf"><h1 class="title"><span class="line sec">ページが見つかりません</span></h1>'
-    page += f'<p>お探しの号は掲載期間（{KEEP_DAYS}日）を過ぎたか、URLが変わった可能性があります。</p>'
+    page += f'<p>お探しのページは、URLが変わったか削除された可能性があります。</p>'
     if latest:
         page += (f'<a class="nf-card" href="{BASE}"><span class="ad">{jdate(latest["date"])}の朝刊</span>'
                  f'<span class="at">{title_html(latest["title"])}</span><span class="go">今日の朝刊を読む →</span></a>')
@@ -726,10 +844,11 @@ def build():
     (OUT / "404.html").write_text(page, encoding="utf-8")
 
     # search (v9)
-    entries = [e for p in posts for e in search_entries(p)]
+    s_cut = (TODAY - timedelta(days=SEARCH_DAYS - 1)).isoformat()
+    entries = [e for p in posts if p["date"] >= s_cut for e in search_entries(p)]
     (OUT / "search.json").write_text(json.dumps(entries, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (OUT / "search").mkdir()
-    page = head(f"記事を検索｜{cfg['site_title']}", f"{cfg['site_title']}の過去{KEEP_DAYS}日分の記事を全文検索。", f"{BASE}search/", "../", "website")
+    page = head(f"記事を検索｜{cfg['site_title']}", f"{cfg['site_title']}の過去1年分の記事を全文検索。", f"{BASE}search/", "../", "website")
     page += SEARCH_BODY + f'<script src="{asset("../", "search.js")}"></script>\n' + foot("../")
     (OUT / "search" / "index.html").write_text(page, encoding="utf-8")
 
@@ -746,9 +865,12 @@ def build():
         f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>{esc(cfg["site_title"])}</title><link>{BASE}</link><description>{esc(cfg["site_description"])}</description>{items}</channel></rss>',
         encoding="utf-8")
 
+    # glossary (v13)
+    gl_urls = build_glossary(posts)
+
     # sitemap + robots
     ld = latest["date"] if latest else ""
-    urls = [(BASE, ld), (f"{BASE}archive/", ld), (f"{BASE}search/", ld), (f"{BASE}about.html", "")] + [(f"{BASE}posts/{p['slug']}.html", p["date"]) for p in posts]
+    urls = [(BASE, ld), (f"{BASE}archive/", ld), (f"{BASE}search/", ld), (f"{BASE}about.html", ""), (f"{BASE}glossary/", ld)] + [(f"{BASE}posts/{p['slug']}.html", p["date"]) for p in posts] + gl_urls
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for u, d in urls:
         sm += f"<url><loc>{u}</loc>" + (f"<lastmod>{d}</lastmod>" if d else "") + "</url>\n"

@@ -257,3 +257,9 @@ ul.archive .rc{background:#ffd23f;border-radius:6px;padding:0 6px;font-size:.7re
 .rb-btn{flex:none;display:flex;align-items:center;min-height:44px;padding:0 16px;background:var(--by);color:var(--nv);font-weight:800;font-size:.85rem;text-decoration:none;border:2px solid var(--nv);border-radius:10px}
 .has-rbar .totop{bottom:calc(78px + env(safe-area-inset-bottom))}
 
+
+/* v13 glossary */
+.sheet .sg{font-weight:700;font-size:.9rem;align-self:flex-start}
+.sheet .sg[hidden]{display:none}
+.crumb{margin:.2em 0 .4em;font-size:.85rem}
+.gl-full,.gl-alias{font-size:.9rem;opacity:.85}
