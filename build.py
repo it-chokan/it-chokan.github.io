@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v14)
+"""Build the static site into _site/. (v15)
+v15: Bing Webmaster verification meta (msvalidate.01) / IndexNow: key file at the site root and
+     _indexnow/urls.json (pages changed today or yesterday JST) for the workflow to ping after deploy.
 v14: article pages /t/<date>-<id>.html (one topic per page, stable id = article data-id, else the topic number) /
      <section class="deep"> inside an article = shown only on the article page (issue page stays a 5-min read) /
      article page: facts open, matched sources, related past articles (same product names / terms), share bar
@@ -41,6 +43,8 @@ glossary = json.loads((ROOT / "glossary.json").read_text(encoding="utf-8-sig"))
 _ids = ROOT / "site_ids.json"
 ids = json.loads(_ids.read_text(encoding="utf-8-sig")) if _ids.exists() else {}
 GSV = (ids.get("google_site_verification") or "").strip()
+BSV = (ids.get("bing_site_verification") or "5C3F5D5BE8B834C431D19F72735A5C58").strip()   # v15: Bing Webmaster Tools
+INDEXNOW_KEY = (ids.get("indexnow_key") or "01b867e2fd5b788622345cbfa5a5fe3b").strip()   # v15: public by design
 GC = (ids.get("goatcounter") or "").strip()
 SHOW_COUNTER = bool(ids.get("show_counter")) and bool(GC)
 # v10: official SNS (config.json "follow" overrides; empty string hides a button)
@@ -255,6 +259,7 @@ def jsonld(obj):
 def head(title, desc, url, rel, og_type="article", extra="", robots=""):
     tw = f'<meta name="twitter:site" content="@{esc(cfg["x_handle"])}">' if cfg.get("x_handle") else ""
     gsv = f'<meta name="google-site-verification" content="{esc(GSV)}">' if GSV else ""
+    gsv += f'<meta name="msvalidate.01" content="{esc(BSV)}">' if BSV else ""
     gc = f'<script data-goatcounter="https://{esc(GC)}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>' if GC else ""
     rb = f'<meta name="robots" content="{robots}">' if robots else ""
     canon = f'<link rel="canonical" href="{url}">' if url else ""
@@ -1087,6 +1092,16 @@ def build():
     (OUT / "sitemap.xml").write_text(sm, encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /latest/\nSitemap: {BASE}sitemap.xml\n", encoding="utf-8")
     (OUT / ".nojekyll").write_text("")
+    # IndexNow (v15): key file + list of recently changed URLs (the workflow posts it after deploy)
+    if INDEXNOW_KEY:
+        (OUT / f"{INDEXNOW_KEY}.txt").write_text(INDEXNOW_KEY, encoding="utf-8")
+        recent = (TODAY - timedelta(days=1)).isoformat()
+        fresh = [u for u, d in urls if d and d[:10] >= recent]
+        ROOT.joinpath("_indexnow").mkdir(exist_ok=True)
+        ROOT.joinpath("_indexnow", "urls.json").write_text(json.dumps(
+            {"host": BASE.split("/")[2], "key": INDEXNOW_KEY, "keyLocation": f"{BASE}{INDEXNOW_KEY}.txt",
+             "urlList": fresh[:10000]}, ensure_ascii=False), encoding="utf-8")
+        print(f"indexnow: {len(fresh)} urls")
     closed = sum(1 for _, p in rows if p is None)
     print(f"search: {len(entries)} entries, {(OUT / 'search.json').stat().st_size} bytes")
     print(f"built {len(posts)} posts, {closed} closed days -> {OUT} (base {BASE}) latest={ld or '-'} "

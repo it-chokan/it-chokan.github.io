@@ -25,6 +25,11 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+      - uses: actions/upload-artifact@v4
+        with:
+          name: indexnow
+          path: _indexnow/urls.json
+          if-no-files-found: ignore
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -34,3 +39,27 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+  indexnow:
+    # v15: tell Bing and other IndexNow engines about today's pages right after the site is live
+    needs: deploy
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: indexnow
+      - run: |
+          python3 - <<'PY'
+          import json, urllib.request, time
+          d = json.load(open("urls.json"))
+          if not d["urlList"]:
+              print("indexnow: nothing to send"); raise SystemExit
+          time.sleep(20)
+          req = urllib.request.Request("https://api.indexnow.org/indexnow", data=json.dumps(d).encode(),
+                                       headers={"Content-Type": "application/json; charset=utf-8"})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  print("indexnow:", r.status, len(d["urlList"]), "urls")
+          except urllib.error.HTTPError as e:
+              print("indexnow: HTTP", e.code, e.read()[:300])
+          PY
