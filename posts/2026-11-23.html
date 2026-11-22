@@ -1,0 +1,96 @@
+<!--meta {"date":"2026-11-23","title":"PHPに重大な穴7件／KARTE経由で三井住友1400万件／T:ChatGPTのSpace、Plusでも","summary":"PHPに重大な穴7件でJPCERT/CCが注意喚起。KARTE経由で三井住友銀行1400万件など公表続く。vCenterの穴が悪用。ChatGPTのSpaceがPlusでも。","window":"11/20 05:30 〜 11/23 05:30 JST"} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-id="php-nov-release" data-sev="high" data-tag="警戒" data-short="PHPに重大な穴7件">
+<header><span class="sev">ヤバい</span><h3>PHPに重大な穴7件、JPCERT/CCが注意喚起を更新。8.4.28などに更新を</h3></header>
+<p class="what">Webサイト作りで定番のプログラム言語<span class="pn">PHP</span>に重大な穴7件が見つかり、11/19に修正版が出ました。国内の調整機関<span class="pn">JPCERT/CC</span>が11/20に注意喚起を更新し、自社でPHPを動かすサイトは更新が必要です。</p>
+<p class="what">穴は全部で17件で、うち7件が最も深刻な「Critical」です。多くは標準ではない設定のときだけ狙われますが、一部は標準の機能に関わり、11/20時点で実際の悪用は確認されていません。</p>
+<p class="ex"><b>たとえると</b>定番の鍵メーカーが「特定の付け方だと開く」欠陥を7件まとめて直した話です。</p>
+<dl class="facts">
+<dt>直った版</dt><dd>PHP 8.5.13 / 8.4.28 / 8.3.37 / 8.2.36（11/19公開）</dd>
+<dt>穴の数</dt><dd>17件（Critical 7件はいずれもCVSS 4.0で9.2）。CVE-2026-115560 などを含む</dd>
+<dt>注意</dt><dd>8.1以前はサポート終了で修正版なし。10月のPHP2Shell（CVE-2026-109618 / 109619）は悪用が続いている</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 自分のサイトをレンタルサーバーで動かしている人は、事業者がPHPを更新したか告知を確かめる。管理者: 直った版に更新する。製品やLinuxに組み込まれたPHPも洗い出す。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>自社やお客さまのサイトで、PHP 8.2〜8.5の直った版より古い版を動かしている会社が対象です。8.1以前は修正版が出ないため、新しい版への移行が必要です。</p>
+<ul class="todo"><li>サーバーで php -v を実行して版番号を確かめる。Linuxの配布版は独自の番号で直すことがあるので、配布元の告知も見る</li><li>10月のPHP2Shellの痕跡として、異常に長いPHPSESSIDのCookieや、メモリ上限エラー・HTTP 500の急増がないかログを見る</li><li>8.2は2026年12月末でサポートが終わるので、8.3以降へ移る日を決める</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="karte-leak" data-sev="high" data-tag="漏洩" data-short="【続報】漏えいまとめ 5件">
+<header><span class="sev">ヤバい</span><h3>【続報】KARTE経由で三井住友銀行1400万件など、個人情報の漏えい公表まとめ（5件）</h3></header>
+<p class="what">顧客分析ツール<span class="pn">KARTE</span>への不正アクセスで、KARTE経由で<span class="pn">三井住友銀行</span>の最大約1400万件や、ファッション通販<span class="pn">ZOZOTOWN</span>の約1518万件などの公表が11/20に続きました。開発元の<span class="pn">プレイド</span>は同日の調査結果で、影響は延べ約2,200社とし、再開は2027年1月中旬を目指すとしています。</p>
+<p class="what">多くは年齢や性別などで、カード番号やパスワードは各社とも対象外です。ただ<span class="pn">丸井グループ</span>のクレジットカード<span class="pn">エポスカード</span>では、約6万件で氏名・年収・キャッシング枠まで漏れた恐れがあります。</p>
+<ul class="leaks">
+<li><b>ZOZOTOWN・WEAR（ファッション通販、ZOZO）</b><span class="n">約1518万件＋約1393万件</span>会員ID・年齢・性別など。約4.7万件はログイン名・メール・電話も。退会者も対象</li>
+<li><b>三井住友銀行</b><span class="n">最大約1400万件</span>生年月日・年代・性別など。氏名・連絡先・口座番号・パスワードは対象外</li>
+<li><b>丸井グループ（マルイの通販・エポスカード）</b><span class="n">約883万件＋約850万件</span>通販は氏名・生年月日・メールなど。エポスカードの約6万件は氏名・年齢・年収・キャッシング枠も</li>
+<li><b>キヤノンマーケティングジャパン（キヤノン製品の会員）</b><span class="n">約366万件</span>会員ID・市区町村・生年月日・性別など。氏名・電話・メールは対象外</li>
+<li><b>Vポイント（ポイントサービス、Vポイントマーケティング）</b><span class="n">9,313件</span>メールアドレス。KARTEとは別件で、元の委託先WOW WORLDのサーバーへの不正アクセス</li>
+</ul>
+<p class="ex"><b>たとえると</b>名簿を預けた倉庫が破られ、預けていた店が次々に「うちの分もあった」と名乗り出ている状況です。</p>
+<p class="act"><b>やること</b>利用者: 各社をかたる「お詫び」や「確認」のメール・SMSのリンクは押さない。カード会社を名乗る電話で暗証番号を聞かれても答えない。管理者: プレイドが11/24から渡す詳細データで、自社の対象範囲を確かめる。KARTEに登録した連携先の鍵を作り直す。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>上のサービスを使ったことがある人と、KARTEを導入していた企業が対象です。企業は、プレイドの調査結果の区分（取り込みデータ・分析データ・連携用の認証情報など）のどれに自社が入るかを確かめます。</p>
+<ul class="todo"><li>各社の公表ページ（出典欄）で、対象の期間と漏れた項目を確かめる</li><li>エポスカードの会員は、カード会社を名乗る連絡が来たら、カード裏面の番号にかけ直して本物か確かめる</li><li>企業は、KARTE連携のために発行したAPIキーやアクセストークンを無効にして作り直す</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="vcenter-zero-day" data-sev="high" data-tag="重大" data-short="vCenterの穴が悪用">
+<header><span class="sev">ヤバい</span><h3>VMwareの管理ソフト「vCenter」、ログインなしで乗っ取れる穴が9月から悪用。修正版に更新を</h3></header>
+<p class="what">仮想サーバーをまとめて管理する米<span class="pn">Broadcom</span>の<span class="pn">vCenter</span>に、ログインなしで管理者になれる穴があり、9月から悪用されていました。Broadcomが11/19に修正版を出し、米政府の「悪用確認済みリスト」KEVにも11/20に載りました。</p>
+<p class="what">米Google傘下の調査会社<span class="pn">Mandiant</span>によると、中国系とみられるスパイ集団が少なくとも9月から使っていました。回避策はなく、修正版への更新が唯一の対策です。</p>
+<p class="ex"><b>たとえると</b>ビル全体の鍵を預かる管理室に、合言葉なしで入れる裏口が2か月以上使われていた話です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-123890（CVSS 9.8）。勧告 VMSA-2026-0009</dd>
+<dt>直った版</dt><dd>vCenter 8.0 U3m、VCF・vSphere Foundation 9.0.2.0200 / 9.1.1.0200、VCF 5.2.5。7.0は延長サポート契約者がサポートに問い合わせ</dd>
+<dt>同時にKEV入り</dt><dd>Cisco Expressway（CVE-2026-76466）、Apache Roller（CVE-2026-129448）、SAP NetWeaver（CVE-2025-42884）</dd>
+</dl>
+<p class="act"><b>やること</b>管理者: vCenterを直った版に更新する。以前の穴（CVE-2026-59309）の修正を当てた機器も対象。更新中は管理画面が一時的に使えないが、動いている仮想マシンは止まらない。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>社内でVMwareの仮想化基盤（vSphereやVCF）を使い、vCenterで管理している会社が対象です。7.0は延長サポートの契約がないと修正版が手に入りません。</p>
+<ul class="todo"><li>vCenterの画面で版番号を確かめ、上の「直った版」と比べる</li><li>vCenterの管理画面がネットから直接見えていないか、つながる範囲を確かめる</li><li>9月以降の管理者ログインの記録と、見覚えのない管理者アカウントがないかを確かめる</li></ul>
+</section>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-id="chatgpt-space-plus" data-sev="low" data-tag="注目" data-short="ChatGPTのSpace、Plusでも">
+<header><span class="sev">注目</span><h3>【11/20発表】ChatGPTの共同編集スペース「Space」、有料のPlusでも使えるように</h3></header>
+<p class="what">米<span class="pn">OpenAI</span>が11/20、対話型AI<span class="pn">ChatGPT</span>の作業スペース「<span class="pn">Space</span>」を、月額制の<span class="pn">ChatGPT Plus</span>で18歳以上の人に広げ始めました。これまでは上位のProと法人向けプランだけでした。</p>
+<p class="what">Spaceは、ページやスライド、画像、ファイルを置く場所で、従来のLibraryに代わります。人とChatGPTが同じページを一緒に編集でき、つないだアプリから自動で更新するページも作れます。</p>
+<p class="ex"><b>たとえると</b>共有の作業机に、資料作りの助手が最初から座っているような話です。</p>
+<p class="act"><b>やること</b>利用者: Plusの人は、メニューにSpaceが出ているか確かめる。順番に提供するので、まだ出ない人もいます。共有したページは、無料プランの人は開けず、公開リンクも作れません。管理者: 個人のPlusで業務の資料を共有していないか、社内ルールを確かめる。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term":"Critical","aliases":["クリティカル"],"full":"","short":"脆弱性の深刻度の最上位","long":"脆弱性の深刻度を4段階ほどで表したときの最も高い区分。外から乗っ取られるなど被害が大きいものに付き、見つかったら最優先で直す目安になる。"},{"term":"レンタルサーバー","aliases":["共用サーバー"],"full":"","short":"事業者から借りるWeb用サーバー","long":"Webサイトを置くために事業者から借りるサーバー。PHPなどの更新は事業者が行うことが多く、利用者は告知で更新済みかを確かめる必要がある。"},{"term":"vCenter","aliases":["vCenter Server"],"full":"","short":"VMware仮想化の管理ソフト","long":"多数の仮想サーバーをまとめて管理するVMwareのソフト。社内の基盤全体を操作できるため、乗っ取られると全サーバーを止められたり、情報を抜かれたりする。"},{"term":"仮想マシン","aliases":["仮想サーバー"],"full":"","short":"ソフトで作った仮のコンピューター","long":"1台の物理サーバーの中に、ソフトで作った何台ものコンピューター。管理ソフトを乗っ取られると、その上で動く仮想マシンもまとめて狙われる。"},{"term":"キャッシング枠","aliases":[],"full":"","short":"カードで借りられる現金の上限","long":"クレジットカードで現金を借りられる上限額。年収と一緒に漏れると、お金に困っていそうな人を狙った詐欺の名簿に使われる恐れがある。"},{"term":"ChatGPT Space","aliases":["Space"],"full":"","short":"ChatGPTの共同作業スペース","long":"ChatGPTで作ったページやスライド、ファイルをまとめて置き、人とAIが一緒に編集できる場所。共有範囲の設定を誤ると、業務資料が外に見える恐れがある。"},{"term":"ChatGPT Plus","aliases":["Plus"],"full":"","short":"ChatGPTの個人向け有料プラン","long":"ChatGPTの月額制の個人向けプラン。無料版より多くの機能が使えるが、法人向けプランと違い、会社が使い方を管理できない点に注意が必要。"},{"term":"Library","aliases":[],"full":"","short":"ChatGPTの旧ファイル置き場","long":"ChatGPTで作った画像やアップロードしたファイルを置いていた場所。Spaceに置き換わるため、保存した資料の場所が変わる。"},{"term":"vSphere","aliases":["VCF","vSphere Foundation","VMware Cloud Foundation"],"full":"","short":"VMwareの仮想化基盤製品","long":"VMwareの仮想化の土台となる製品群。VCFはその上位のまとめ売り版。vCenterで管理するため、vCenterの穴は基盤全体の乗っ取りにつながる。"},{"term":"PHPSESSID","aliases":[],"full":"","short":"PHPのログイン状態を示すCookie","long":"PHPのサイトが利用者を見分けるためにブラウザへ渡す番号。10月のPHP2Shellでは、異常に長いこの値が攻撃の痕跡として挙げられている。"},{"term":"アクセストークン","aliases":["APIキー"],"full":"Access token","short":"サービス連携用の鍵","long":"他のサービスとつなぐときに使う、パスワード代わりの文字列。盗まれると本人になりすまして連携先のデータを読まれるため、漏れたら無効にして作り直す。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>Critical（クリティカル）：</b>脆弱性の深刻度を表す区分のうち、最も高いもの。外からの乗っ取りなど被害が大きい穴に付きます。今日のPHPでは17件中7件がCriticalでした。ただし「特定の設定のときだけ」という条件付きのことも多く、自分の環境が当てはまるかを確かめたうえで、それでも早めに更新するのが基本です。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://www.jpcert.or.jp/at/2026/at260033.html">JPCERT/CC: PHPにおける複数の脆弱性（CVE-2026-109618、CVE-2026-109619）に関する注意喚起（11/20更新）</a></li>
+<li><a href="https://www.ipa.go.jp/security/security-alert/2026/pre-alert20261119.html">IPA: PHPのセキュリティリリースに関する事前準備のお願い（11/19）</a></li>
+<li><a href="https://www.php.net/archive/2026.php#2026-11-19-4">PHP: PHP 8.5.13 Released</a></li>
+<li><a href="https://forest.watch.impress.co.jp/docs/news/2158039.html">窓の杜: PHPのセキュリティリリース、Critical 7件を修正</a></li>
+<li><a href="https://plaid.co.jp/news/20261120/">プレイド: KARTEへの不正アクセスに関する調査結果（11/20）</a></li>
+<li><a href="https://www.smbc.co.jp/news/pdf/j20261120_01.pdf">三井住友銀行: お知らせ（11/20）</a></li>
+<li><a href="https://corp.zozo.com/information/20261120-482917/">ZOZO: お知らせ（11/20）</a></li>
+<li><a href="https://www.0101maruigroup.co.jp/nr/26_1120_1">丸井グループ: お知らせ（11/20）</a></li>
+<li><a href="https://www.eposcard.co.jp/articles/news/261120.html">エポスカード: お知らせ（11/20）</a></li>
+<li><a href="https://corporate.jp.canon/info/2026/20261120">キヤノンマーケティングジャパン: お知らせ（11/20）</a></li>
+<li><a href="https://www.vpoint.co.jp/news/20261120_2532/">Vポイントマーケティング: 元業務委託先への不正アクセスによるメールアドレス漏えいについて（11/20）</a></li>
+<li><a href="https://piyolog.hatenadiary.jp/entry/2026/11/18/010752">piyolog: プレイドのCXプラットフォーム「KARTE」への不正アクセスについてまとめてみた</a></li>
+<li><a href="https://venture-solution.jp/security/cs-118713/">Venture Solution: プレイドがKARTE不正アクセスの調査結果を公表、影響は延べ約2,200社に</a></li>
+<li><a href="https://www.rapid7.com/blog/post/etr-cve-2026-123890-critical-authentication-bypass-vmware-vcenter/">Rapid7: CVE-2026-123890: Critical Authentication Bypass in VMware vCenter</a></li>
+<li><a href="https://www.helpnetsecurity.com/2026/11/20/vmware-vcenter-zero-day-cve-2026-123890-exploited/">Help Net Security: VMware vCenter zero-day exploited for months before patch (CVE-2026-123890)</a></li>
+<li><a href="https://thehackernews.com/2026/11/hackers-exploit-critical-vmware-cisco.html">The Hacker News: CISA adds VMware, Cisco, SAP and Apache Roller flaws to KEV</a></li>
+<li><a href="https://www.notebookcheck.net/ChatGPT-Space-comes-to-Plus-What-others-see-on-your-shared-pages.1456735.0.html">Notebookcheck: ChatGPT Space comes to Plus</a></li>
+<li><a href="https://help.openai.com/en/articles/6825453-chatgpt-release-notes">OpenAI: ChatGPT Release Notes</a></li>
+</ul>
+</section>
