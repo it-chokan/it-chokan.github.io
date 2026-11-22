@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v15)
+"""Build the static site into _site/. (v16)
+v16: glossary index search box (static/glossary_search.js). Filters terms by term / full name / aliases / short
+     (NFKC, lowercase, katakana = hiragana). ?q= supported. No hit -> link to the article search.
 v15: Bing Webmaster verification meta (msvalidate.01) / IndexNow: key file at the site root and
      _indexnow/urls.json (pages changed today or yesterday JST) for the workflow to ping after deploy.
 v14: article pages /t/<date>-<id>.html (one topic per page, stable id = article data-id, else the topic number) /
@@ -950,22 +952,28 @@ def build_glossary(posts):
         (gdir / f"{slug}.html").write_text(page, encoding="utf-8")
         if hits:
             urls.append((url, hits[0][0]))
-        rows.append((term, slug, t["short"], len(hits)))
+        rows.append((term, slug, t["short"], len(hits), " ".join(x for x in [term, full, *aliases, t["short"]] if x)))
     # index
     asc = sorted([r for r in rows if re.match(r"[0-9A-Za-z]", r[0])], key=lambda r: r[0].lower())
     jp = sorted([r for r in rows if not re.match(r"[0-9A-Za-z]", r[0])], key=lambda r: r[0])
     def ul(rs):
         return '<ul class="archive">' + "".join(
-            f'<li><a href="{quote(s)}.html"><span class="ad">{esc(term)}</span><span class="at">{esc(short)}</span></a></li>'
-            for term, s, short, _ in rs) + "</ul>\n"
+            f'<li data-k="{esc(k)}"><a href="{quote(s)}.html"><span class="ad">{esc(term)}</span><span class="at">{esc(short)}</span></a></li>'
+            for term, s, short, _, k in rs) + "</ul>\n"
     ld = jsonld(dict(set_ld, **{"@context": "https://schema.org", "hasDefinedTerm": [
-        {"@type": "DefinedTerm", "name": term, "url": f"{BASE}glossary/{quote(s)}.html"} for term, s, _, _ in rows]}))
+        {"@type": "DefinedTerm", "name": term, "url": f"{BASE}glossary/{quote(s)}.html"} for term, s, _, _, _ in rows]}))
     page = head(f"IT用語集（{len(rows)}語）｜{cfg['site_title']}",
                 f"セキュリティ・新技術のニュースに出てくるIT用語{len(rows)}語を、新人エンジニアにもわかる一言でやさしく解説。CVE・KEV・ランサムウェアなど。",
                 f"{BASE}glossary/", "../", "website", extra=ld)
     page += (f'<h1 class="title"><span class="line sec">IT用語集</span></h1>\n'
              f'<p class="lead">IT朝刊の記事に出てきた用語{len(rows)}語を、ひと言でやさしく解説します。</p>\n'
-             f'<h2 class="part">英数字</h2>\n{ul(asc)}<h2 class="part">日本語</h2>\n{ul(jp)}' + foot("../"))
+             '<div class="search gsearch">\n<label for="gq" class="sr">用語を検索</label>\n'
+             '<input id="gq" type="search" placeholder="例: KEV、ランサム、ぜいじゃく、認証" autocomplete="off" enterkeyhint="search">\n'
+             '<p class="hint">用語名・正式名称・別名・ひと言解説から探します。ひらがな・カタカナ、全角・半角は区別しません。</p>\n'
+             '<p class="count" id="gcount" aria-live="polite"></p>\n</div>\n'
+             f'<h2 class="part">英数字</h2>\n{ul(asc)}<h2 class="part">日本語</h2>\n{ul(jp)}'
+             '<p class="gnone" id="gnone" hidden></p>\n'
+             f'<script src="{asset("../", "glossary_search.js")}"></script>\n' + foot("../"))
     (gdir / "index.html").write_text(page, encoding="utf-8")
     print(f"glossary: {len(rows)} terms, {sum(1 for r in rows if r[3])} with articles")
     return urls

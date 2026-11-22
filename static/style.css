@@ -291,3 +291,8 @@ ul.archive .rc{background:#ffd23f;border-radius:6px;padding:0 6px;font-size:.7re
 .fb-main{display:block;padding:10px;border:2px solid var(--ink);border-radius:12px;background:var(--yellow);color:var(--ink);font-weight:800;text-decoration:none}
 .fb-main.alt{background:var(--lime)}
 .fb-main small{display:block;font-weight:700;font-size:.75rem}
+/* ---- v16: glossary search ---- */
+.gsearch{margin:12px 0 4px}
+.gnone{font-weight:700}
+.gnone a{display:block;margin-top:6px;font-weight:400}
+[hidden]{display:none!important}
