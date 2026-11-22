@@ -291,8 +291,19 @@ ul.archive .rc{background:#ffd23f;border-radius:6px;padding:0 6px;font-size:.7re
 .fb-main{display:block;padding:10px;border:2px solid var(--ink);border-radius:12px;background:var(--yellow);color:var(--ink);font-weight:800;text-decoration:none}
 .fb-main.alt{background:var(--lime)}
 .fb-main small{display:block;font-weight:700;font-size:.75rem}
-/* ---- v16: glossary search ---- */
-.gsearch{margin:12px 0 4px}
+/* ---- v17: glossary index (compact) ---- */
+.navlinks a[aria-current]{background:#14213d;color:#fff}
+.navlinks{gap:6px}
+.navlinks a{padding:2px 9px}
+.gtitle{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:0}
+.gnum{font-size:.8rem;font-weight:800;background:#ffd23f;color:#14213d;border:2px solid #14213d;border-radius:99px;padding:1px 10px;line-height:1.4}
+.glead{margin:2px 0 10px;font-size:.85rem;color:var(--muted)}
+.gsearch{position:relative;display:flex;align-items:center;margin:0 0 6px}
+.gsearch input{font:inherit;font-size:16px;width:100%;height:40px;padding:0 84px 0 12px;border:2px solid #14213d;border-radius:10px;background:#fff;color:#14213d;-webkit-appearance:none;appearance:none}
+.gsearch input::-webkit-search-cancel-button{display:none}
+.gsearch input:focus{outline:3px solid var(--blue);outline-offset:1px}
+.gcount{position:absolute;right:40px;font-size:.75rem;font-weight:700;color:var(--muted);pointer-events:none}
+.gclear{position:absolute;right:4px;width:32px;height:32px;border:0;border-radius:50%;background:#e6e9ef;color:#14213d;font-size:1.1rem;line-height:1;cursor:pointer}
 .gnone{font-weight:700}
 .gnone a{display:block;margin-top:6px;font-weight:400}
 [hidden]{display:none!important}

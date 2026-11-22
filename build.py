@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v16)
+"""Build the static site into _site/. (v17)
+v17: glossary index made compact (title + term count badge, one-line search bar with clear button, no hint text),
+     current page highlighted in the nav on /glossary/, nav label "検索" -> "記事検索".
 v16: glossary index search box (static/glossary_search.js). Filters terms by term / full name / aliases / short
      (NFKC, lowercase, katakana = hiragana). ?q= supported. No hit -> link to the article search.
 v15: Bing Webmaster verification meta (msvalidate.01) / IndexNow: key file at the site root and
@@ -288,7 +290,7 @@ def head(title, desc, url, rel, og_type="article", extra="", robots=""):
 <link rel="stylesheet" href="{asset(rel, 'style.css')}">{icons}{extra}{gc}
 </head><body><div class="wrap">
 <div class="mast"><a href="{rel}"><p class="logo">{logo}{esc(cfg['site_title'])}<span class="rank-chip" id="rankchip" hidden></span></p></a><span class="tag">// security × tech, every morning</span></div>
-<nav class="navlinks" aria-label="サイト内"><a href="{rel}">今日の朝刊</a><a href="{rel}archive/">バックナンバー</a><a href="{rel}glossary/">用語集</a><a href="{rel}search/">検索</a></nav>
+<nav class="navlinks" aria-label="サイト内"><a href="{rel}">今日の朝刊</a><a href="{rel}archive/">バックナンバー</a><a href="{rel}glossary/">用語集</a><a href="{rel}search/">記事検索</a></nav>
 """
 
 def foot(rel):
@@ -965,12 +967,13 @@ def build_glossary(posts):
     page = head(f"IT用語集（{len(rows)}語）｜{cfg['site_title']}",
                 f"セキュリティ・新技術のニュースに出てくるIT用語{len(rows)}語を、新人エンジニアにもわかる一言でやさしく解説。CVE・KEV・ランサムウェアなど。",
                 f"{BASE}glossary/", "../", "website", extra=ld)
-    page += (f'<h1 class="title"><span class="line sec">IT用語集</span></h1>\n'
-             f'<p class="lead">IT朝刊の記事に出てきた用語{len(rows)}語を、ひと言でやさしく解説します。</p>\n'
-             '<div class="search gsearch">\n<label for="gq" class="sr">用語を検索</label>\n'
-             '<input id="gq" type="search" placeholder="例: KEV、ランサム、ぜいじゃく、認証" autocomplete="off" enterkeyhint="search">\n'
-             '<p class="hint">用語名・正式名称・別名・ひと言解説から探します。ひらがな・カタカナ、全角・半角は区別しません。</p>\n'
-             '<p class="count" id="gcount" aria-live="polite"></p>\n</div>\n'
+    page = page.replace('href="../glossary/">用語集</a>', 'href="../glossary/" aria-current="page">用語集</a>', 1)
+    page += (f'<h1 class="title gtitle"><span class="line sec">IT用語集</span><span class="gnum">{len(rows)}語</span></h1>\n'
+             '<p class="glead">記事に出てきたIT用語を、ひと言でやさしく解説</p>\n'
+             '<div class="gsearch" role="search">\n<label for="gq" class="sr">用語を検索</label>\n'
+             '<input id="gq" type="search" placeholder="用語を検索（例: KEV、ランサム）" autocomplete="off" enterkeyhint="search">\n'
+             '<span class="gcount" id="gcount" aria-live="polite"></span>\n'
+             '<button type="button" class="gclear" id="gclear" aria-label="検索をクリア" hidden>×</button>\n</div>\n'
              f'<h2 class="part">英数字</h2>\n{ul(asc)}<h2 class="part">日本語</h2>\n{ul(jp)}'
              '<p class="gnone" id="gnone" hidden></p>\n'
              f'<script src="{asset("../", "glossary_search.js")}"></script>\n' + foot("../"))
