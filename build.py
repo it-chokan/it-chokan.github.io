@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v19)
+"""Build the static site into _site/. (v20)
+v20: comparison pages show official sources ("sources": [[label, https-url]]) / links to comparison pages are URL-encoded.
 v19: weekly digest pages /weekly/<monday>.html + /weekly/ (articles of the week by category with 1-line summaries,
      terms of the week; CollectionPage + ItemList JSON-LD) / comparison pages /glossary/vs/<a>-vs-<b>.html from
      glossary.json "comparisons" (summary, table, analogy, how to use; FAQPage JSON-LD), linked from both term pages
@@ -1020,7 +1021,7 @@ def build_glossary(posts):
         vs = [c for c in COMPARISONS if term in (c["a"], c["b"])]
         if vs:
             page += ('<h2>ほかの用語との違い</h2><ul class="archive">' + "".join(
-                f'<li><a href="vs/{c["slug"]}.html"><span class="ad">{esc(c["a"])}と{esc(c["b"])}</span>'
+                f'<li><a href="vs/{quote(c["slug"])}.html"><span class="ad">{esc(c["a"])}と{esc(c["b"])}</span>'
                 f'<span class="at">{esc(c["summary"])}</span></a></li>' for c in vs) + "</ul>\n")
         if rel_terms:
             page += ('<h2>一緒に出てくる用語</h2><ul class="gl-rel">' + "".join(
@@ -1059,7 +1060,7 @@ def build_glossary(posts):
              '<button type="button" class="gclear" id="gclear" aria-label="検索をクリア" hidden>×</button>\n</div>\n'
              f'<h2 class="part">英数字</h2>\n{ul(asc)}<h2 class="part">日本語</h2>\n{ul(jp)}'
              + (('<h2 class="part" id="vs">違いがわかる</h2>\n<ul class="archive">' + "".join(
-                 f'<li data-k="{esc(c["a"])} {esc(c["b"])} 違い"><a href="vs/{c["slug"]}.html"><span class="ad">{esc(c["a"])}と{esc(c["b"])}の違い</span>'
+                 f'<li data-k="{esc(c["a"])} {esc(c["b"])} 違い"><a href="vs/{quote(c["slug"])}.html"><span class="ad">{esc(c["a"])}と{esc(c["b"])}の違い</span>'
                  f'<span class="at">{esc(c["summary"])}</span></a></li>' for c in COMPARISONS) + "</ul>\n") if COMPARISONS else "")
              + '<p class="gnone" id="gnone" hidden></p>\n'
              f'<script src="{asset("../", "glossary_search.js")}"></script>\n' + foot("../"))
@@ -1083,7 +1084,9 @@ def load_comparisons():
         seen.add(slug)
         pts = [p for p in (c.get("points") or []) if isinstance(p, list) and len(p) == 3]
         out.append({"a": a, "b": b, "slug": slug, "summary": c["summary"].strip(), "points": pts,
-                    "easy": (c.get("easy") or "").strip(), "use": (c.get("use") or "").strip()})
+                    "easy": (c.get("easy") or "").strip(), "use": (c.get("use") or "").strip(),
+                    "sources": [x for x in (c.get("sources") or []) if isinstance(x, list) and len(x) == 2
+                                and str(x[1]).startswith("https://")]})
     return out
 
 VS_CSS = """
@@ -1138,6 +1141,9 @@ def build_comparisons():
             page += f'<h2>たとえるなら</h2><p>{esc(c["easy"])}</p>\n'
         if c["use"]:
             page += f'<h2>どう使い分ける？</h2><p>{esc(c["use"])}</p>\n'
+        if c["sources"]:
+            page += ('<h2>公式の説明</h2><ul>' + "".join(
+                f'<li><a href="{esc(u)}" rel="noopener" target="_blank">{esc(lab)}</a></li>' for lab, u in c["sources"]) + "</ul>\n")
         page += "<h2>それぞれの意味</h2><ul class=\"archive\">" + "".join(
             f'<li><a href="../{quote(TERM_URL[x])}.html"><span class="ad">{esc(x)}</span><span class="at">{esc(by[x]["short"])}</span></a></li>'
             for x in (a, b)) + "</ul>\n"
