@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v18)
+"""Build the static site into _site/. (v19)
+v19: weekly digest pages /weekly/<monday>.html + /weekly/ (articles of the week by category with 1-line summaries,
+     terms of the week; CollectionPage + ItemList JSON-LD) / comparison pages /glossary/vs/<a>-vs-<b>.html from
+     glossary.json "comparisons" (summary, table, analogy, how to use; FAQPage JSON-LD), linked from both term pages
+     and the glossary index / footer links to the weekly digest / llms.txt lists both.
 v18: AI search (LLMO). Glossary term pages answer first ("Xとは、...のことです。"), show last-updated date + editor,
      optional "easy" field (たとえるなら), FAQ (visible + FAQPage JSON-LD), WebPage JSON-LD with dateModified,
      related terms by co-occurrence / article + issue pages: term list rendered in static HTML (readable without JS;
@@ -299,7 +303,7 @@ def head(title, desc, url, rel, og_type="article", extra="", robots=""):
 """
 
 def foot(rel):
-    return f"""<footer>記事は公開時点の情報です。対応する前に、出典の公式発表を確認してください。黄色いマーカーの用語はタップで解説が出ます。<br><a href="{rel}archive/">バックナンバー</a> ・ <a href="{rel}glossary/">用語集</a> ・ <a href="{rel}about.html">このサイトについて</a></footer>
+    return f"""<footer>記事は公開時点の情報です。対応する前に、出典の公式発表を確認してください。黄色いマーカーの用語はタップで解説が出ます。<br><a href="{rel}archive/">バックナンバー</a> ・ <a href="{rel}glossary/">用語集</a> ・ <a href="{rel}weekly/">週まとめ</a> ・ <a href="{rel}about.html">このサイトについて</a></footer>
 </div></body></html>"""
 
 SHEET = """<div class="sheet" id="sheet" hidden role="dialog" aria-live="polite"><div class="in">
@@ -1013,6 +1017,11 @@ def build_glossary(posts):
             page += f'<p class="gl-alias">別の呼び方・表記: {esc("、".join(aliases))}</p>\n'
         page += '<h2>よくある質問</h2><dl class="gl-faq">' + "".join(
             f"<dt>{esc(q)}</dt><dd>{esc(a)}</dd>" for q, a in faq) + "</dl>\n"
+        vs = [c for c in COMPARISONS if term in (c["a"], c["b"])]
+        if vs:
+            page += ('<h2>ほかの用語との違い</h2><ul class="archive">' + "".join(
+                f'<li><a href="vs/{c["slug"]}.html"><span class="ad">{esc(c["a"])}と{esc(c["b"])}</span>'
+                f'<span class="at">{esc(c["summary"])}</span></a></li>' for c in vs) + "</ul>\n")
         if rel_terms:
             page += ('<h2>一緒に出てくる用語</h2><ul class="gl-rel">' + "".join(
                 f'<li><a href="{quote(TERM_URL[x])}.html">{esc(x)}</a></li>' for x in rel_terms) + "</ul>\n")
@@ -1049,11 +1058,162 @@ def build_glossary(posts):
              '<span class="gcount" id="gcount" aria-live="polite"></span>\n'
              '<button type="button" class="gclear" id="gclear" aria-label="検索をクリア" hidden>×</button>\n</div>\n'
              f'<h2 class="part">英数字</h2>\n{ul(asc)}<h2 class="part">日本語</h2>\n{ul(jp)}'
-             '<p class="gnone" id="gnone" hidden></p>\n'
+             + (('<h2 class="part" id="vs">違いがわかる</h2>\n<ul class="archive">' + "".join(
+                 f'<li data-k="{esc(c["a"])} {esc(c["b"])} 違い"><a href="vs/{c["slug"]}.html"><span class="ad">{esc(c["a"])}と{esc(c["b"])}の違い</span>'
+                 f'<span class="at">{esc(c["summary"])}</span></a></li>' for c in COMPARISONS) + "</ul>\n") if COMPARISONS else "")
+             + '<p class="gnone" id="gnone" hidden></p>\n'
              f'<script src="{asset("../", "glossary_search.js")}"></script>\n' + foot("../"))
     (gdir / "index.html").write_text(page, encoding="utf-8")
     print(f"glossary: {len(rows)} terms, {sum(1 for r in rows if r[3])} with articles")
     return urls
+
+# ---- v19: comparison pages ("AとBの違い") ----
+COMPARISONS = []   # filled in build(): [{a, b, slug, summary, points[[label, a, b]], easy, use}]
+
+def load_comparisons():
+    out, seen = [], set()
+    for c in glossary.get("comparisons") or []:
+        a, b = (c.get("a") or "").strip(), (c.get("b") or "").strip()
+        if not (a in TERM_URL and b in TERM_URL and a != b and (c.get("summary") or "").strip()):
+            print(f"comparison skipped (unknown term or no summary): {a} / {b}")
+            continue
+        slug = f"{TERM_URL[a]}-vs-{TERM_URL[b]}"
+        if slug in seen:
+            continue
+        seen.add(slug)
+        pts = [p for p in (c.get("points") or []) if isinstance(p, list) and len(p) == 3]
+        out.append({"a": a, "b": b, "slug": slug, "summary": c["summary"].strip(), "points": pts,
+                    "easy": (c.get("easy") or "").strip(), "use": (c.get("use") or "").strip()})
+    return out
+
+VS_CSS = """
+/* v19: comparison pages + weekly digest */
+.vs-table{width:100%;border-collapse:collapse;font-size:.9rem;margin:6px 0 4px;background:#fff;border-radius:10px;overflow:hidden}
+.vs-table th,.vs-table td{border:1px solid var(--dot);padding:8px 6px;vertical-align:top;text-align:left}
+.vs-table thead th{background:var(--yellow);color:#14213d;font-weight:800}
+.vs-table tbody th{white-space:nowrap;font-weight:700;background:#f6f9fc}
+.wk-sec{margin:14px 0 4px}
+.wk-list li .at small{display:block;opacity:.75;font-size:.8rem;margin-top:2px}
+"""
+
+def build_comparisons():
+    vdir = OUT / "glossary" / "vs"
+    vdir.mkdir(parents=True, exist_ok=True)
+    g_mod = str(glossary.get("updated_jst") or TODAY.isoformat())[:10]
+    by = {t["term"]: t for t in glossary["terms"]}
+    urls = []
+    for c in COMPARISONS:
+        a, b = c["a"], c["b"]
+        url = f"{BASE}glossary/vs/{quote(c['slug'])}.html"
+        title = f"{a}と{b}の違いとは？やさしく解説｜{cfg['site_title']} 用語集"
+        q = f"{a}と{b}の違いは何ですか？"
+        faq = [(q, c["summary"])]
+        if c["use"]:
+            faq.append((f"{a}と{b}はどう使い分けますか？", c["use"]))
+        ta = lambda x: f"{BASE}glossary/{quote(TERM_URL[x])}.html"
+        ld = jsonld({"@context": "https://schema.org", "@type": "WebPage", "name": title, "url": url, "inLanguage": "ja",
+                     "description": c["summary"], "dateModified": g_mod,
+                     "about": [{"@type": "DefinedTerm", "name": x, "url": ta(x)} for x in (a, b)],
+                     "isPartOf": {"@type": "WebSite", "name": cfg["site_title"], "url": BASE},
+                     "author": {"@type": "Organization", "name": cfg.get("author") or cfg["site_title"], "url": f"{BASE}about.html"},
+                     "publisher": PUBLISHER}) + jsonld({
+                     "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+                        {"@type": "Question", "name": qq, "acceptedAnswer": {"@type": "Answer", "text": aa}} for qq, aa in faq]}) + jsonld({
+                     "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+                        {"@type": "ListItem", "position": 1, "name": cfg["site_title"], "item": BASE},
+                        {"@type": "ListItem", "position": 2, "name": "用語集", "item": f"{BASE}glossary/"},
+                        {"@type": "ListItem", "position": 3, "name": f"{a}と{b}の違い", "item": url}]})
+        page = head(title, c["summary"][:120], url, "../../", "article", extra=ld)
+        page += f'<p class="crumb"><a href="../../">{esc(cfg["site_title"])}</a> › <a href="../">用語集</a> › 違い</p>\n'
+        page += f'<h1 class="title"><span class="line sec">{esc(a)}と{esc(b)}の違い</span></h1>\n'
+        page += f'<p class="lead gl-def">{esc(c["summary"])}</p>\n'
+        page += (f'<p class="gl-meta">最終更新 <time datetime="{g_mod}">{g_mod[:4]}年{int(g_mod[5:7])}月{int(g_mod[8:10])}日</time> ・ '
+                 f'{esc(cfg.get("author") or cfg["site_title"])}（<a href="../../about.html">作り方と方針</a>）</p>\n')
+        page += '<div id="article"><section class="about">\n'
+        if c["points"]:
+            page += (f'<h2>くらべてみると</h2><table class="vs-table"><thead><tr><th></th><th>{esc(a)}</th><th>{esc(b)}</th></tr></thead><tbody>'
+                     + "".join(f"<tr><th>{esc(p[0])}</th><td>{esc(p[1])}</td><td>{esc(p[2])}</td></tr>" for p in c["points"])
+                     + "</tbody></table>\n")
+        if c["easy"]:
+            page += f'<h2>たとえるなら</h2><p>{esc(c["easy"])}</p>\n'
+        if c["use"]:
+            page += f'<h2>どう使い分ける？</h2><p>{esc(c["use"])}</p>\n'
+        page += "<h2>それぞれの意味</h2><ul class=\"archive\">" + "".join(
+            f'<li><a href="../{quote(TERM_URL[x])}.html"><span class="ad">{esc(x)}</span><span class="at">{esc(by[x]["short"])}</span></a></li>'
+            for x in (a, b)) + "</ul>\n"
+        page += '<h2>よくある質問</h2><dl class="gl-faq">' + "".join(f"<dt>{esc(qq)}</dt><dd>{esc(aa)}</dd>" for qq, aa in faq) + "</dl>\n"
+        page += (f'<p class="more-issues"><a href="../../">今日の朝刊を読む</a> ・ <a href="../#vs">ほかの「違い」を見る</a></p>\n'
+                 "</section></div>\n" + foot("../../"))
+        (vdir / f"{c['slug']}.html").write_text(page, encoding="utf-8")
+        urls.append((url, g_mod))
+    print(f"comparisons: {len(urls)} pages")
+    return urls
+
+# ---- v19: weekly digest ----
+def build_weekly(posts):
+    wdir = OUT / "weekly"
+    wdir.mkdir()
+    weeks = {}
+    for p in posts:
+        d = date.fromisoformat(p["date"])
+        weeks.setdefault(d - timedelta(days=d.weekday()), []).append(p)
+    urls, rows = [], []
+    for mon in sorted(weeks, reverse=True):
+        ps = sorted(weeks[mon], key=lambda p: p["date"])
+        first, last = ps[0]["date"], ps[-1]["date"]
+        slug = mon.isoformat()
+        url = f"{BASE}weekly/{slug}.html"
+        fd, ld_ = date.fromisoformat(first), date.fromisoformat(last)
+        span = f"{fd.month}月{fd.day}日〜{ld_.month}月{ld_.day}日"
+        items = [(p, t) for p in ps for t in topics_of(p)]
+        n = len(items)
+        title = f"{span}のITニュースまとめ（{n}件）｜{cfg['site_title']}"
+        desc = f"{fd.year}年{span}のセキュリティ事件と新技術{n}件を、1行ずつやさしくまとめました。" + "／".join(t["short"] for _, t in items[:3])
+        desc = desc if len(desc) <= 120 else desc[:119] + "…"
+        tc = {}
+        for _, t in items:
+            for x in t["terms"]:
+                tc[x] = tc.get(x, 0) + 1
+        top_terms = [x for x, _ in sorted(tc.items(), key=lambda z: (-z[1], z[0])) if x in TERM_URL][:8]
+        ld = jsonld({"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "url": url, "inLanguage": "ja",
+                     "description": desc, "datePublished": first + PUB_TIME, "dateModified": max(modified_of(p, p["date"] + PUB_TIME) for p in ps),
+                     "isPartOf": {"@type": "WebSite", "name": cfg["site_title"], "url": BASE}, "publisher": PUBLISHER,
+                     "mainEntity": {"@type": "ItemList", "numberOfItems": n, "itemListElement": [
+                         {"@type": "ListItem", "position": i, "url": f"{BASE}t/{t['slug']}.html", "name": t["head"]}
+                         for i, (_, t) in enumerate(items, 1)]}})
+        page = head(title, desc, url, "../", "website", extra=ld)
+        page += f'<p class="crumb"><a href="../">{esc(cfg["site_title"])}</a> › <a href="./">週まとめ</a></p>\n'
+        page += f'<h1 class="title"><span class="line sec">{esc(span)}のITニュース</span></h1>\n'
+        page += f'<p class="lead">{fd.year}年{esc(span)}に IT朝刊で取り上げた{n}件を、1行ずつまとめました。気になる記事から読めます。</p>\n'
+        page += '<div id="article"><section class="about">\n'
+        for cat in ("cat-incident", "cat-tech"):
+            sel = [(p, t) for p, t in items if t["cat"] == cat]
+            if not sel:
+                continue
+            page += f'<h2 class="wk-sec">{CAT_JA[cat]}（{len(sel)}件）</h2><ul class="archive wk-list">' + "".join(
+                f'<li><a href="../t/{t["slug"]}.html"><span class="ad">{jdate(p["date"])}</span>'
+                f'<span class="at">{esc(t["head"])}<small>{esc(first_sentence(t["inner"], 70) or t["short"])}</small></span></a></li>'
+                for p, t in sel) + "</ul>\n"
+        if top_terms:
+            page += ('<h2>この週によく出た用語</h2><ul class="gl-rel">' + "".join(
+                f'<li><a href="../glossary/{quote(TERM_URL[x])}.html">{esc(x)}</a></li>' for x in top_terms) + "</ul>\n")
+        page += ('<h2>この週の号</h2><ul class="archive">' + "".join(
+            f'<li><a href="../posts/{p["slug"]}.html"><span class="ad">{jdate(p["date"])}</span><span class="at">{title_html(p["title"], p["slug"])}</span></a></li>'
+            for p in ps) + "</ul>\n")
+        page += (f'<p class="more-issues"><a href="../">今日の朝刊を読む</a> ・ <a href="./">ほかの週を見る</a></p>\n'
+                 "</section></div>\n" + foot("../"))
+        (wdir / f"{slug}.html").write_text(page, encoding="utf-8")
+        urls.append((url, last))
+        rows.append((slug, span, fd.year, n, items[:3]))
+    page = head(f"週まとめ｜{cfg['site_title']}", f"{cfg['site_title']}の1週間分のITニュースを、週ごとに1ページでまとめています。",
+                f"{BASE}weekly/", "../", "website")
+    page += '<h1 class="title"><span class="line sec">週まとめ</span></h1>\n<p class="lead">1週間に取り上げたITニュースを、週ごとに1ページでまとめています。</p>\n<ul class="archive">\n'
+    page += "".join(f'<li><a href="{s}.html"><span class="ad">{y}年 {esc(sp)}</span><span class="at">{n}件：'
+                    + esc("／".join(t["short"] for _, t in top)) + "</span></a></li>\n" for s, sp, y, n, top in rows)
+    page += "</ul>\n" + foot("../")
+    (wdir / "index.html").write_text(page, encoding="utf-8")
+    print(f"weekly: {len(rows)} pages")
+    return [(f"{BASE}weekly/", urls[0][1] if urls else "")] + urls
 
 # ---- v18: AI search ----
 # Same rules for everyone; AI search / assistant bots are named so it is explicit that they are welcome.
@@ -1090,10 +1250,13 @@ def llms_txt(posts):
            f"- [今日の朝刊]({BASE}): 最新号。1ページ5分で読めます",
            f"- [IT用語集]({BASE}glossary/): ニュースに出てくるIT用語{len(glossary['terms'])}語を、ひと言でやさしく解説",
            f"- [バックナンバー]({BASE}archive/): 過去の号の一覧",
+           f"- [週まとめ]({BASE}weekly/): 1週間分のITニュースを週ごとに1ページで",
            f"- [このサイトについて]({BASE}about.html): 記事の選び方、事実確認と出典の方針", "",
            "## 最近の号", ""]
     for p in posts[:10]:
         out.append(f"- [{jdate(p['date'])}号 {title_plain(p['title'])}]({BASE}posts/{p['slug']}.html): {p['summary']}")
+    if COMPARISONS:
+        out += ["", "## 用語の違い", ""] + [f"- [{c['a']}と{c['b']}の違い]({BASE}glossary/vs/{quote(c['slug'])}.html): {c['summary']}" for c in COMPARISONS]
     out += ["", "## Optional", "", f"- [サイトマップ]({BASE}sitemap.xml)", f"- [RSS]({BASE}feed.xml)", ""]
     return "\n".join(out)
 
@@ -1113,7 +1276,7 @@ def build():
         (OUT / "static" / "counter.js").write_text(COUNTER_JS % GC, encoding="utf-8")
     (OUT / "static" / "stamp.js").write_text(STAMP_JS, encoding="utf-8")
     with open(OUT / "static" / "style.css", "a", encoding="utf-8") as f:   # v18
-        f.write(GL_CSS)
+        f.write(GL_CSS + VS_CSS)
     make_icons()
     (OUT / "manifest.webmanifest").write_text(manifest(), encoding="utf-8")
     for f in (OUT / "static").iterdir():
@@ -1121,7 +1284,10 @@ def build():
             VER[f.name] = hashlib.sha1(f.read_bytes()).hexdigest()[:8]
     posts = load_posts()
     TERM_URL.update(term_slugs())
-    gl_out = dict(glossary, terms=[dict(t, u=f"{BASE}glossary/{quote(TERM_URL[t['term']])}.html") for t in glossary["terms"]])
+    COMPARISONS[:] = load_comparisons()   # v19
+    # v19: keep the per-page glossary JSON small (easy / comparisons are only used on glossary pages)
+    gl_out = {k: v for k, v in glossary.items() if k != "comparisons"}
+    gl_out["terms"] = [dict({k: v for k, v in t.items() if k != "easy"}, u=f"{BASE}glossary/{quote(TERM_URL[t['term']])}.html") for t in glossary["terms"]]
     gl_json = json.dumps(gl_out, ensure_ascii=False).replace("</", "<\\/")
     latest = posts[0] if posts else None
     issue_dates = sorted(p["date"] for p in posts)
@@ -1210,10 +1376,12 @@ def build():
 
     # glossary (v13)
     gl_urls = build_glossary(posts)
+    vs_urls = build_comparisons()   # v19
+    wk_urls = build_weekly(posts)   # v19
 
     # sitemap + robots
     ld = latest["date"] if latest else ""
-    urls = [(BASE, ld), (f"{BASE}archive/", ld), (f"{BASE}search/", ld), (f"{BASE}about.html", ""), (f"{BASE}glossary/", ld)] + [(f"{BASE}posts/{p['slug']}.html", p["date"]) for p in posts] + tp_urls + gl_urls
+    urls = [(BASE, ld), (f"{BASE}archive/", ld), (f"{BASE}search/", ld), (f"{BASE}about.html", ""), (f"{BASE}glossary/", ld)] + [(f"{BASE}posts/{p['slug']}.html", p["date"]) for p in posts] + tp_urls + gl_urls + vs_urls + wk_urls
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for u, d in urls:
         sm += f"<url><loc>{u}</loc>" + (f"<lastmod>{d}</lastmod>" if d else "") + "</url>\n"
