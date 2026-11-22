@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Build the static site into _site/. (v17)
+"""Build the static site into _site/. (v18)
+v18: AI search (LLMO). Glossary term pages answer first ("Xとは、...のことです。"), show last-updated date + editor,
+     optional "easy" field (たとえるなら), FAQ (visible + FAQPage JSON-LD), WebPage JSON-LD with dateModified,
+     related terms by co-occurrence / article + issue pages: term list rendered in static HTML (readable without JS;
+     hidden by CSS once glossary.js fills #gllist) / robots.txt names AI search bots explicitly / /llms.txt /
+     about page: citation policy.
 v17: glossary index made compact (title + term count badge, one-line search bar with clear button, no hint text),
      current page highlighted in the nav on /glossary/, nav label "検索" -> "記事検索".
 v16: glossary index search box (static/glossary_search.js). Filters terms by term / full name / aliases / short
@@ -461,7 +466,8 @@ def render_issue(p, rel, url, gl_json, is_top=False, extra_head="", latest=None,
     page += counter_html(rel)
     page += toc + tabs
     page += f'<div id="article">{body}</div>\n'
-    page += '<section class="gl"><h2>この記事の用語</h2><ul id="gllist"></ul></section>\n'
+    page += ('<section class="gl"><h2>この記事の用語</h2><ul id="gllist"></ul>'
+             + static_terms(set().union(*[t["terms"] for t in topics_of(p)]), rel) + '</section>\n')
     page += kandoku_html(p, rel, is_current)
     page += f'<p class="more-issues"><a href="{rel}archive/">過去の朝刊を見る</a> ・ <a href="{rel}glossary/">IT用語集</a></p>\n'
     tail = (f'</div>{SHEET}{RBAR}<script type="application/json" id="glossary-data">{gl_json}</script>'
@@ -539,6 +545,8 @@ ABOUT_BODY = f"""<h1 class="title"><span class="line sec">このサイトにつ�
 <p>過去の号はずっと残します。バックナンバーの一覧には直近{KEEP_DAYS}日分を表示し、それより前の号は検索や用語集から読めます。配信トラブルで記事を作れなかった日は、バックナンバーに「休刊」と表示します。</p>
 <h2>訂正・ご連絡</h2>
 <p>記事の誤りや、掲載内容についてのご連絡は、<a href="https://github.com/it-chokan/it-chokan.github.io/issues">GitHub の Issues</a> からお願いします。確認のうえ、必要に応じて訂正します。</p>
+<h2>AIでの引用について</h2>
+<p>ChatGPT・Claude・Gemini・Perplexity などのAIが、このサイトの記事や用語集を参照・引用することを歓迎します。引用するときは、該当ページへのリンクを出典として示してください。記事は公開時点の情報のため、対応する前に出典の公式発表もあわせて確認してください。</p>
 <h2>アクセス解析</h2>
 <p>閲覧数の把握のため、Cookieを使わないアクセス解析サービス GoatCounter を利用しています。個人を特定する情報は収集していません。</p>
 </section>
@@ -806,7 +814,7 @@ def render_topic(p, t, latest, gl_json, all_topics):
         page += ('<section class="rel"><h2>関連する記事</h2><ul class="archive">' + "".join(
             f'<li><a href="{tq["slug"]}.html"><span class="ad">{jdate(q["date"])}</span><span class="at">{esc(tq["head"])}</span></a></li>'
             for _, _, q, tq in rel) + "</ul></section>\n")
-    page += '<section class="gl"><h2>この記事の用語</h2><ul id="gllist"></ul><p class="gl-more"><a href="../glossary/">用語集をすべて見る</a></p></section>\n'
+    page += '<section class="gl"><h2>この記事の用語</h2><ul id="gllist"></ul>' + static_terms(t["terms"], "../") + '<p class="gl-more"><a href="../glossary/">用語集をすべて見る</a></p></section>\n'
     mins = read_minutes(DEEP_RE.sub("", p["body"]))
     page += (f'<section class="fbox" aria-label="毎朝読む"><p class="fb-h">ITニュースは、毎朝5分で。</p>'
              f'<p class="fb-s">IT朝刊は平日の朝7時に、その日に知るべきセキュリティ事件と新技術を、用語解説つきで届けます。</p>'
@@ -866,6 +874,42 @@ PUBLISHER = {"@type": "Organization", "name": cfg["site_title"], "alternateName"
              "logo": {"@type": "ImageObject", "url": f"{BASE}static/icon/icon-192.png"}}
 TERM_URL = {}   # term -> file slug (unquoted)
 
+def static_terms(terms, rel):
+    """v18: the article's term list as plain HTML (AI crawlers and no-JS readers). CSS hides it once #gllist is filled."""
+    rows = [t for t in glossary["terms"] if t["term"] in terms and t["term"] in TERM_URL]
+    if not rows:
+        return ""
+    return '<ul class="gl-static">' + "".join(
+        f'<li><a href="{rel}glossary/{quote(TERM_URL[t["term"]])}.html"><b>{esc(t["term"])}</b>'
+        f'<span>{esc(t["short"])}</span></a></li>' for t in rows) + "</ul>"
+
+GL_CSS = """
+/* v18: static term list (shown without JS, hidden after glossary.js fills #gllist) */
+.gl-static{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:.9rem}
+.gl-static a{display:flex;gap:10px;align-items:baseline;padding:6px 4px;color:inherit;text-decoration:none;border-bottom:1px dashed var(--dot)}
+.gl-static b{font-family:var(--mono);color:var(--blue);flex:none}
+#gllist:not(:empty)+.gl-static{display:none}
+/* v18: glossary term page */
+.gl-def{font-size:1.05rem;line-height:1.8;margin:4px 0 6px}
+.gl-meta{font-size:.78rem;opacity:.75;margin:0 0 10px}
+.gl-faq dt{font-weight:800;margin-top:10px}
+.gl-faq dd{margin:2px 0 0}
+.gl-rel{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.gl-rel a{display:inline-block;padding:4px 10px;border:1px solid var(--dot);border-radius:999px;font-size:.85rem;text-decoration:none;color:inherit}
+"""
+
+def term_cooccur(posts):
+    """v18: term -> {other term: number of articles where both appear}."""
+    co = {}
+    for p in posts:
+        for t in topics_of(p):
+            for a in t["terms"]:
+                for b in t["terms"]:
+                    if a != b:
+                        co.setdefault(a, {}).setdefault(b, 0)
+                        co[a][b] += 1
+    return co
+
 def term_slugs():
     out, seen = {}, set()
     for t in glossary["terms"]:
@@ -913,6 +957,8 @@ def build_glossary(posts):
         try: full_map = json.loads(fp.read_text(encoding="utf-8-sig"))
         except ValueError: pass
     set_ld = {"@type": "DefinedTermSet", "name": f"{cfg['site_title']} 用語集", "url": f"{BASE}glossary/"}
+    co = term_cooccur(posts)
+    g_mod = str(glossary.get("updated_jst") or TODAY.isoformat())[:10]
     urls, rows = [], []
     for t in glossary["terms"]:
         term, slug = t["term"], TERM_URL[t["term"]]
@@ -921,27 +967,55 @@ def build_glossary(posts):
         aliases = [a for a in (t.get("aliases") or []) if a and a != full]
         hits = use.get(term, [])
         name = f"{term}（{full}）" if full else term
-        desc = f"{name}とは、{t['short']}のこと。{t['long']}"
+        easy = (t.get("easy") or "").strip()          # v18: optional analogy ("たとえるなら")
+        answer = f"{name}とは、{t['short']}のことです。"   # v18: answer-first sentence
+        desc = f"{answer}{t['long']}"
         desc = desc if len(desc) <= 120 else desc[:119] + "…"
-        ld = jsonld({"@context": "https://schema.org", "@type": "DefinedTerm", "name": term,
-                     "alternateName": [x for x in [full, *aliases] if x], "description": t["long"],
-                     "url": url, "inDefinedTermSet": set_ld}) + jsonld({
+        faq = [(f"{term}とは何ですか？", f"{answer}{t['long']}")]
+        if full:
+            faq.append((f"{term}の正式名称は？", f"{full}です。"))
+        if easy:
+            faq.append((f"{term}をたとえで言うと？", easy))
+        if hits:
+            faq.append((f"{term}は最近どんなニュースに出てきましたか？",
+                        "IT朝刊では" + "、".join(f"{jdate(d)}の「{h}」" for d, _, h in hits[:2]) + "などで取り上げました。"))
+        rel_terms = [x for x, _ in sorted(co.get(term, {}).items(), key=lambda x: (-x[1], x[0])) if x in TERM_URL][:6]
+        title = f"{term}とは？意味をやさしく解説｜{cfg['site_title']} 用語集"
+        dt_ld = {"@type": "DefinedTerm", "@id": f"{url}#term", "name": term,
+                 "alternateName": [x for x in [full, *aliases] if x], "description": f"{answer}{t['long']}",
+                 "url": url, "inDefinedTermSet": set_ld}
+        ld = jsonld(dict(dt_ld, **{"@context": "https://schema.org"})) + jsonld({
+                     "@context": "https://schema.org", "@type": "WebPage", "name": title, "url": url, "inLanguage": "ja",
+                     "description": desc, "dateModified": g_mod, "about": {"@id": f"{url}#term"},
+                     "isPartOf": {"@type": "WebSite", "name": cfg["site_title"], "url": BASE},
+                     "author": {"@type": "Organization", "name": cfg.get("author") or cfg["site_title"], "url": f"{BASE}about.html"},
+                     "publisher": PUBLISHER}) + jsonld({
+                     "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+                        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]}) + jsonld({
                      "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
                         {"@type": "ListItem", "position": 1, "name": cfg["site_title"], "item": BASE},
                         {"@type": "ListItem", "position": 2, "name": "用語集", "item": f"{BASE}glossary/"},
                         {"@type": "ListItem", "position": 3, "name": term, "item": url}]})
         # terms not used in any article yet: reachable from tooltips, but kept out of search results (thin page)
-        page = head(f"{term}とは？意味をやさしく解説｜{cfg['site_title']} 用語集", desc, url, "../", "article", extra=ld,
-                    robots="" if hits else "noindex,follow")
+        page = head(title, desc, url, "../", "article", extra=ld, robots="" if hits else "noindex,follow")
         page += f'<p class="crumb"><a href="../">{esc(cfg["site_title"])}</a> › <a href="./">用語集</a></p>\n'
         page += f'<h1 class="title"><span class="line sec">{esc(term)}とは</span></h1>\n'
-        page += f'<p class="lead">{esc(t["short"])}</p>\n<div id="article"><section class="about">\n'
+        page += f'<p class="lead gl-def"><b>{esc(name)}</b>とは、{esc(t["short"])}のことです。</p>\n'
+        page += (f'<p class="gl-meta">最終更新 <time datetime="{g_mod}">{g_mod[:4]}年{int(g_mod[5:7])}月{int(g_mod[8:10])}日</time> ・ '
+                 f'{esc(cfg.get("author") or cfg["site_title"])}（<a href="../about.html">作り方と方針</a>）</p>\n')
+        page += '<div id="article"><section class="about">\n'
         if full:
             page += f'<p class="gl-full">正式名称: {esc(full)}</p>\n'
-        page += f'<h2>かんたんに言うと</h2><p>{esc(name)}は、{esc(t["short"])}のことです。</p>\n'
         page += f'<h2>もう少しくわしく</h2><p>{esc(t["long"])}</p>\n'
+        if easy:
+            page += f'<h2>たとえるなら</h2><p>{esc(easy)}</p>\n'
         if aliases:
             page += f'<p class="gl-alias">別の呼び方・表記: {esc("、".join(aliases))}</p>\n'
+        page += '<h2>よくある質問</h2><dl class="gl-faq">' + "".join(
+            f"<dt>{esc(q)}</dt><dd>{esc(a)}</dd>" for q, a in faq) + "</dl>\n"
+        if rel_terms:
+            page += ('<h2>一緒に出てくる用語</h2><ul class="gl-rel">' + "".join(
+                f'<li><a href="{quote(TERM_URL[x])}.html">{esc(x)}</a></li>' for x in rel_terms) + "</ul>\n")
         page += f'<h2>IT朝刊で「{esc(term)}」が出てきた記事</h2>\n'
         if hits:
             page += '<ul class="archive">' + "".join(
@@ -981,6 +1055,48 @@ def build_glossary(posts):
     print(f"glossary: {len(rows)} terms, {sum(1 for r in rows if r[3])} with articles")
     return urls
 
+# ---- v18: AI search ----
+# Same rules for everyone; AI search / assistant bots are named so it is explicit that they are welcome.
+ROBOTS = """# IT朝刊 robots.txt (v18)
+# Search engines and AI search / assistant bots are welcome. Please link to the page you quote.
+User-agent: *
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: GPTBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: DuckAssistBot
+Allow: /
+Disallow: /latest/
+
+Sitemap: {base}sitemap.xml
+"""
+
+def llms_txt(posts):
+    """v18: /llms.txt (llmstxt.org format). Low cost; few AI services read it yet."""
+    out = [f"# {cfg['site_title']}（it-chokan）", "",
+           "> IT朝刊は、平日の毎朝7時（日本時間）に更新する日本語のITニュースサイトです。"
+           "その日に知るべきセキュリティ事件と新技術を、初心者にもわかるやさしい言葉と用語解説つきで、5分で読める1ページにまとめています。", "",
+           "引用するときは、該当ページのURLを出典として示してください。記事は公開時点の情報です。", "",
+           "## 主なページ", "",
+           f"- [今日の朝刊]({BASE}): 最新号。1ページ5分で読めます",
+           f"- [IT用語集]({BASE}glossary/): ニュースに出てくるIT用語{len(glossary['terms'])}語を、ひと言でやさしく解説",
+           f"- [バックナンバー]({BASE}archive/): 過去の号の一覧",
+           f"- [このサイトについて]({BASE}about.html): 記事の選び方、事実確認と出典の方針", "",
+           "## 最近の号", ""]
+    for p in posts[:10]:
+        out.append(f"- [{jdate(p['date'])}号 {title_plain(p['title'])}]({BASE}posts/{p['slug']}.html): {p['summary']}")
+    out += ["", "## Optional", "", f"- [サイトマップ]({BASE}sitemap.xml)", f"- [RSS]({BASE}feed.xml)", ""]
+    return "\n".join(out)
+
 def manifest():
     icons = ([{"src": f"{BASE}static/icon/icon-192.png", "sizes": "192x192", "type": "image/png"}] if HAS_ICON else [])
     return json.dumps({"name": cfg["site_title"], "short_name": cfg["site_title"], "start_url": BASE, "scope": BASE,
@@ -996,6 +1112,8 @@ def build():
     if SHOW_COUNTER:
         (OUT / "static" / "counter.js").write_text(COUNTER_JS % GC, encoding="utf-8")
     (OUT / "static" / "stamp.js").write_text(STAMP_JS, encoding="utf-8")
+    with open(OUT / "static" / "style.css", "a", encoding="utf-8") as f:   # v18
+        f.write(GL_CSS)
     make_icons()
     (OUT / "manifest.webmanifest").write_text(manifest(), encoding="utf-8")
     for f in (OUT / "static").iterdir():
@@ -1101,7 +1219,8 @@ def build():
         sm += f"<url><loc>{u}</loc>" + (f"<lastmod>{d}</lastmod>" if d else "") + "</url>\n"
     sm += "</urlset>\n"
     (OUT / "sitemap.xml").write_text(sm, encoding="utf-8")
-    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /latest/\nSitemap: {BASE}sitemap.xml\n", encoding="utf-8")
+    (OUT / "robots.txt").write_text(ROBOTS.format(base=BASE), encoding="utf-8")
+    (OUT / "llms.txt").write_text(llms_txt(posts), encoding="utf-8")   # v18
     (OUT / ".nojekyll").write_text("")
     # IndexNow (v15): key file + list of recently changed URLs (the workflow posts it after deploy)
     if INDEXNOW_KEY:
