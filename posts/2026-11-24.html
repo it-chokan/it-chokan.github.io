@@ -1,0 +1,82 @@
+<!--meta {"date":"2026-11-24","title":"医療AIの穴、AIが攻撃に悪用／KARTE経由で東京ガスも漏えい／T:CrowdStrikeがZscaler買収","summary":"医療AIの穴がAIを使った攻撃に悪用。KARTE経由で東京ガスなども漏えい。CrowdStrikeがZscaler買収へ。PHP 8.2は期限まで37日。","window":"11/23 05:30 〜 11/24 05:30 JST","sns":{"hook":"医療AIの穴、AIが11分で突破","items":[{"voice":"AIが勝手に攻撃してくるの…？","fix":"MONAI Labelをネットから外す","say":"医療AIの研究ソフトの穴が、AIを使った攻撃に悪用されました。すぐネットから切り離して。"},{"voice":"東京ガスを名乗るメール、本物…？","fix":"お詫びメールのリンクは押さない","say":"カルテ経由で東京ガスなども漏えいを公表。お詫びを装うメールのリンクは押さないでください。"},{"voice":"セキュリティ会社の合併で何が変わる？","fix":"PCと通信の守りが1社にまとまる","say":"クラウドストライクがゼットスケーラーを買収へ。PCと通信の守りが一つの会社にまとまります。"}]}} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-id="kev-monai-mailassure" data-sev="high" data-tag="重大" data-short="医療AIの穴、AIが悪用">
+<header><span class="sev">ヤバい</span><h3>医療AIの研究ソフトの穴、AIエージェントを使った攻撃に悪用。メール防御サービスの穴とあわせて米KEVに登録</h3></header>
+<p class="what">医療AIの開発で画像に印を付けるソフト<span class="pn">MONAI Label</span>の穴が、AIを使った攻撃に悪用されました。米政府の「悪用確認済みリスト」KEVに11/23（米国時間）、メールの迷惑メール対策サービス<span class="pn">MailAssure</span>の穴とあわせて登録されました。</p>
+<p class="what">米<span class="pn">Amazon</span>によると、中国系とみられる集団が、自分で作業を進めるAIエージェントに指示しました。外から操作する窓口APIの調べ始めからサーバーへの書き込みまでは約11分でした。MONAI Labelは0.8.5以前が対象で、修正版はまだ出ていません。</p>
+<p class="ex"><b>たとえると</b>泥棒が下見から鍵開けまでロボットに任せ、11分で裏口を開けたような話です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-133968（MONAI Label、CVSS 9.8）／CVE-2026-134624（MailAssure、CVSS 4.0で9.3）</dd>
+<dt>直った版</dt><dd>MONAI Label: 修正版なし（0.8.5以前が対象）／MailAssure: 20261121.1943以降</dd>
+<dt>関連</dt><dd>開発元のN-ableは11/19、MailAssureなどのクラウドのサーバーへの不正アクセスを公表（今回の穴との関係は未公表）</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 特になし（サービス側の対応を待つ）。管理者: 【今日中】MONAI Labelはネットから切り離し、ログインの確認（認証）を有効にする。MailAssureを使う会社は、提供元の告知で対応済みかを確かめる。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>大学や病院の研究で、医療画像の注釈にMONAI Labelを動かしている組織が対象です。MailAssureやSpamExpertsでメールを守っている会社も、提供元の告知を確かめてください。</p>
+<ul class="todo"><li>サーバーで pip show monailabel を実行し、0.8.5以前なら対象と考える</li><li>設定 MONAI_LABEL_AUTH_ENABLE=True で認証を有効にし、管理者ではない専用のユーザーで動かす</li><li>アクセス記録で、/datastore/image などへの見覚えのない書き込み要求がないか確かめる</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="karte-leak" data-sev="mid" data-tag="漏洩" data-short="【続報】漏えいまとめ 2件">
+<header><span class="sev">注意</span><h3>【続報】KARTE経由で東京ガス・クラシルも漏えいを公表、個人情報の漏えいまとめ（2件）</h3></header>
+<p class="what">顧客分析ツール<span class="pn">KARTE</span>への不正アクセスで、KARTE経由で<span class="pn">東京ガス</span>やレシピアプリの<span class="pn">クラシル</span>も11/20に漏えいを公表していました。東京ガスでは、ウォーターサーバーの申込者の氏名や電話番号など、最大約4.9万人分が漏れた恐れがあります。</p>
+<p class="what">2件ともカード番号やパスワードは対象外です。開発元の<span class="pn">プレイド</span>は、11/24から導入企業へ詳しいデータを渡すと発表しています。</p>
+<ul class="leaks">
+<li><b>東京ガス（ガス・電気、ウォーターサーバー）</b><span class="n">最大約4.9万人＋約30万件</span>申込者の氏名・生年月日・電話・メールなど。myTOKYOGASは会員ID。KARTE経由 → 該当したら: 不審な電話・メールに注意</li>
+<li><b>クラシル（レシピアプリの「レシチャレ」）</b><span class="n">最大約32万件</span>内部ID・使った店の名前など。契約終了後もデータが残存 → 該当したら: 偽のお詫びメールに注意</li>
+</ul>
+<p class="ex"><b>たとえると</b>引き払ったはずの倉庫に、名簿が置きっぱなしだったような話です。</p>
+<p class="act"><b>やること</b>利用者: 東京ガスやクラシルを名乗る「お詫び」のメールやSMSのリンクは押さない。管理者: 【計画】契約を終えたKARTEの環境にもデータが残っていないか、プレイドに確かめる。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>東京ガスのウォーターサーバーを申し込んだ人、myTOKYOGASの会員、クラシルのレシチャレを使った人が対象です。過去にKARTEを導入していた企業も、契約終了後のデータが対象になり得ます。</p>
+<ul class="todo"><li>東京ガスとクラシルの公表ページ（出典欄）で、対象の範囲と漏れた項目を確かめる</li><li>東京ガスを名乗る電話は一度切り、公表ページにある専用窓口にかけ直して確かめる</li><li>企業は、契約が終わったKARTEの環境に自社のデータが残っていないかと、その削除をプレイドに確かめる</li></ul>
+</section>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-id="crowdstrike-zscaler" data-sev="low" data-tag="話題" data-short="CrowdStrikeがZscaler買収">
+<header><span class="sev">注目</span><h3>【11/23発表】セキュリティ大手CrowdStrike、通信を守るZscalerを約439億ドルで買収へ</h3></header>
+<p class="what">米セキュリティ大手の<span class="pn">CrowdStrike</span>が11/23（米国時間）、社員の通信を守るクラウドサービスの<span class="pn">Zscaler</span>を買収すると発表しました。買収額は約439億ドルで、規制当局の承認などを経て完了します。</p>
+<p class="what">CrowdStrikeはPCやサーバーを守る製品が主力です。支払いは、自社の株を渡して払う株式交換です。Zscaler株1株に、CrowdStrike株1.135株を割り当てます。Zscalerの製品やブランドの今後は、発表では示されていません。</p>
+<p class="ex"><b>たとえると</b>家の中を守る警備会社が、玄関と通り道を守る警備会社を丸ごと買うような話です。</p>
+<p class="act"><b>やること</b>利用者: 特になし。管理者: 【計画】両社の製品を使う会社は、次の契約更新の前に、販売店へ今後の提供方針を確かめる。</p>
+</article>
+
+<article class="topic" data-id="php82-eol" data-sev="mid" data-tag="期限" data-short="PHP 8.2終了まで37日">
+<header><span class="sev">注意</span><h3>PHP 8.2のサポート終了まであと37日。12/31を過ぎると穴が見つかっても直らない</h3></header>
+<p class="what">Webサイト作りで定番のプログラム言語<span class="pn">PHP</span>のうち、8.2版のセキュリティ修正が2026年12月31日で終わります。それ以降に穴が見つかっても直った版は出ないため、8.3以降へ移る必要があります。</p>
+<p class="what">公式の予定では、8.3は2027年12月末、8.4は2028年12月末まで修正が出ます。古い版から上げるときは、PHPに機能を足す拡張機能や部品が新しい版で動くかの確認が要ります。</p>
+<p class="ex"><b>たとえると</b>修理の受付が終わる日が決まった家電を、壊れる前に買い替える段取りの話です。</p>
+<dl class="facts">
+<dt>期限</dt><dd>PHP 8.2: 2026-12-31でセキュリティ修正が終了</dd>
+<dt>移行先</dt><dd>8.3: 2027-12-31まで／8.4: 2028-12-31まで／8.5: 2029-12-31まで</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 事業者から借りるレンタルサーバーでサイトを動かしている人は、管理画面でPHPの版を確かめ、8.3以降に切り替える。管理者: 【計画】8.2で動くサイトを洗い出し、年内に8.3以降へ移す日を決める。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term": "MONAI Label", "aliases": ["MONAI", "monailabel"], "full": "", "short": "医療画像に印を付けるAI用ソフト", "long": "医療画像に病変などの印（注釈）を付け、AIの学習に使うデータを作るオープンソースのソフト。標準ではログイン確認がなく、ネットにつながっていると誰でも穴を突ける。"}, {"term": "MailAssure", "aliases": ["SpamExperts", "Mail Assure"], "full": "", "short": "N-ableのメール防御サービス", "long": "米N-ableの、迷惑メールやウイルス付きメールを止めるクラウドサービス（旧名SpamExperts）。IT業者が多くの顧客のメールをまとめて守るため、穴を突かれると影響が広がる。"}, {"term": "認証", "aliases": [], "full": "Authentication", "short": "本人かどうかを確かめる仕組み", "long": "パスワードなどで、使う人が本人かどうかを確かめる仕組み。これを切ったままのサーバーは、ネットから誰でも操作できてしまうため、攻撃の入口になりやすい。"}, {"term": "myTOKYOGAS", "aliases": [], "full": "", "short": "東京ガスの会員サイト", "long": "東京ガスの利用者が料金や使用量を確かめる会員サイト。会員IDが外に出ると、本物らしい偽の連絡に使われる恐れがあるため、届いた連絡の真偽を確かめることが大切。"}, {"term": "レシチャレ", "aliases": [], "full": "", "short": "クラシルの買い物ポイント企画", "long": "レシピアプリのクラシルが行う、対象商品を買ってレシートを送るとポイントがもらえる企画。利用した店や商品の情報が記録されるため、買い物の傾向が分かるデータになる。"}, {"term": "株式交換", "aliases": [], "full": "", "short": "現金でなく株で買収代金を払う方法", "long": "会社を買うときに、現金の代わりに自社の株を相手の株主に渡す方法。大きな額でも現金を用意せずに買収でき、買われた側の株主は買った会社の株主になる。"}, {"term": "規制当局", "aliases": [], "full": "", "short": "企業の合併などを審査する役所", "long": "市場の競争や安全を守るため、企業の大型買収などを審査する国の機関。審査に時間がかかったり、条件が付いたり、認められなかったりすることがある。"}, {"term": "レンタルサーバー", "aliases": ["共用サーバー"], "full": "", "short": "事業者から借りるWeb用サーバー", "long": "Webサイトを置くために事業者から借りるサーバー。PHPの版は管理画面で切り替えられることが多く、古い版のまま放置すると修正の出ない穴が残る。"}, {"term": "注釈", "aliases": ["アノテーション"], "full": "Annotation", "short": "データに付ける正解の印", "long": "AIに学ばせるため、画像や文章に「ここが病変」などの正解の印を付けること。医療画像では患者のデータを扱うため、作業用サーバーの守りが特に重要になる。"}, {"term": "pip", "aliases": [], "full": "", "short": "Pythonの部品を管理する道具", "long": "プログラム言語Pythonの部品（パッケージ）を入れたり、版を確かめたりする道具。pip showで入っている版が分かるため、穴のある版を使っていないかの確認に使える。"}, {"term": "不正アクセス", "aliases": [], "full": "Unauthorized access", "short": "権限なくシステムに入ること", "long": "許可を得ていない人が、他人のIDを使ったり穴を突いたりしてシステムに入ること。委託先のサービスが狙われると、それを使う多くの企業の顧客情報がまとめて漏れる。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>AIエージェント：</b>人が目標を伝えると、調べる・試す・直すといった作業を自分で続けるAIのこと。今日の医療AIソフトの件では、攻撃者がAIエージェントに「このサーバーに入れ」と指示し、穴探しから侵入までを任せていました。守る側も、ネットにつながる機器の棚卸しを早めることが大切です。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog">CISA: Known Exploited Vulnerabilities Catalog（11/23追加: CVE-2026-133968、CVE-2026-134624）</a></li>
+<li><a href="https://www.securityweek.com/amazon-china-linked-hackers-ai-agents-exploited-medical-software-zero-day/">SecurityWeek: Amazon: China-Linked Hackers' AI Agents Exploited Medical Software Zero-Day</a></li>
+<li><a href="https://www.rescana.com/post/monai-label-cve-2026-133968-path-traversal-exploited-no-fixed-release-mitigate-now">Rescana: MONAI Label CVE-2026-133968 Path Traversal Exploited in the Wild</a></li>
+<li><a href="https://radar.offseq.com/threat/cve-2026-134624-cwe-918-server-side-request-forgery-in-n-able-mailassure-40d16b14681f88d1">OffSeq: CVE-2026-134624 MailAssure Server-Side Request Forgery</a></li>
+<li><a href="https://thehackernews.com/2026/11/n-able-confirms-hackers-accessed-cloud.html">The Hacker News: N-able Confirms Hackers Accessed Cloud Server（11/19）</a></li>
+<li><a href="https://www.tokyo-gas.co.jp/news/press/20261120-01.html">東京ガス: 外部サービスへの不正アクセスによるお客さま情報の流出について（11/20）</a></li>
+<li><a href="https://kumanichi.com/articles/2060190">熊本日日新聞（共同通信）: 東京ガスの顧客情報流出</a></li>
+<li><a href="https://kurashiru.co.jp/news/update/d8yg20boxz">クラシル: 当社が利用する外部サービスへの不正アクセスに伴う情報の漏えいに関するお詫びとお知らせ（11/20）</a></li>
+<li><a href="https://plaid.co.jp/news/20261120/">プレイド: KARTEへの不正アクセスに関する調査結果（11/20）</a></li>
+<li><a href="https://techcrunch.com/2026/11/23/crowdstrike-to-acquire-zscaler-for-44-billion/">TechCrunch: CrowdStrike to acquire Zscaler for $44 billion</a></li>
+<li><a href="https://www.sec.gov/Archives/edgar/data/0001535527/000153552726000035/crwd-20261123xex991.htm">CrowdStrike: Form 8-K 添付プレスリリース（11/23）</a></li>
+<li><a href="https://www.php.net/supported-versions.php">PHP: Supported Versions</a></li>
+</ul>
+</section>
