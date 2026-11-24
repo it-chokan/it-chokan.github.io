@@ -1,0 +1,71 @@
+<!--meta {"date":"2026-11-25","title":"京王で最大1063万人分漏えい／Drupalに乗っ取りの穴、悪用／T:Linuxを再起動なしで守る","summary":"京王で最大1063万人分が漏えいの恐れ。Drupalに乗っ取りの穴、悪用を確認。OpenAIとCiscoがLinuxを再起動なしで守る仕組みを公開。","window":"11/24 05:30 〜 11/25 05:30 JST","sns":{"hook":"京王、最大1063万人分漏えい","items":[{"voice":"京王のホテル使ったけど、大丈夫…？","fix":"カードの明細を確かめる","say":"京王で最大1063万人分の情報が漏れた恐れ。カードの明細に覚えのない請求がないか確かめて。"},{"voice":"うちの会社のサイト、乗っ取られる？","fix":"ドルーパルを今日中に更新","say":"サイト作りのソフト、ドルーパルの穴が悪用されています。今日中に最新版へ更新を。"},{"voice":"サーバーを止めずに守れるの？","fix":"パッチまでの間、穴をふさぐ","say":"オープンエーアイとシスコが、リナックスを再起動なしで守る仕組みを無料で公開しました。"}]}} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-id="keio-leak" data-sev="high" data-tag="漏洩" data-short="漏えいまとめ 3件">
+<header><span class="sev">ヤバい</span><h3>京王で最大1063万人分が漏えいの恐れ、パスポートの写しも。個人情報の漏えい公表まとめ（3件）</h3></header>
+<p class="what">鉄道大手の<span class="pn">京王電鉄</span>が11/24、9月のランサムウェア攻撃で、グループの顧客など最大1063万人分の個人情報が漏えいした恐れがあると公表しました。ホテルに泊まった外国人客のパスポートの写し約160万件や、カード番号も含まれます。</p>
+<p class="what">京王は同日、個人情報の監督機関<span class="pn">個人情報保護委員会</span>に最終報告を出しました。顧客分析ツールKARTE経由の漏えいでは、オフィス用品通販の<span class="pn">カウネット</span>と、ビジネススクールの<span class="pn">グロービス</span>も公表しています。</p>
+<ul class="leaks">
+<li><b>京王電鉄（ホテル・百貨店・旅行・不動産などグループ47社）</b><span class="n">最大約1063万人</span>顧客・取引先などの情報。パスポートの写し約160万件、百貨店カードなどの番号約2万件も。ランサムウェア攻撃 → 該当したら: カード明細を確認</li>
+<li><b>【続報】カウネット（オフィス用品の通販、コクヨ）</b><span class="n">30万525件</span>メールアドレス・顧客番号・電話番号。KARTE経由（第2報で氏名は対象外に訂正） → 該当したら: 不審なメールに注意</li>
+<li><b>【続報】グロービス（経営大学院・ビジネススクール）</b><span class="n">件数非公表</span>資料請求者などのメールアドレス・性別。KARTE経由 → 該当したら: 不審なメールに注意</li>
+</ul>
+<p class="ex"><b>たとえると</b>2か月前に金庫を破られ、持ち出された書類の一覧がやっと出そろったような話です。</p>
+<p class="act"><b>やること</b>利用者: 京王のホテルや百貨店を使った人は、カードの明細に覚えのない請求がないか確かめる。京王や各社をかたるメール・SMSのリンクは押さない。管理者: 【計画】パスポートの写しなど本人確認書類の保管場所と保存期間を見直し、不要な分は消す。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>京王プラザホテルなど京王グループのホテルに泊まった外国人客、京王百貨店のカードなどの会員、グループの不動産の契約者などが対象になり得ます。カウネットとグロービスの利用者も、不審な連絡に注意が必要です。</p>
+<ul class="todo"><li>京王の公表資料（出典欄）で、自分が使ったホテル・百貨店・不動産などが対象に入っているかを確かめる</li><li>京王は対象者に個別に知らせるとしている。連絡が来たら、文中の番号ではなく公式サイトの窓口で本物か確かめる</li><li>コクヨはメールでパスワードやカード情報を求めないとしているので、カウネットを名乗ってそれを聞くメールには答えない</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="drupal-installer-rce" data-sev="high" data-tag="重大" data-short="Drupalに乗っ取りの穴、悪用">
+<header><span class="sev">ヤバい</span><h3>サイト作りのDrupalに乗っ取りの穴、米政府が悪用を確認。修正版へ更新を</h3></header>
+<p class="what">Webサイトを作る管理ソフト（CMS）の<span class="pn">Drupal</span>に、ログインなしでサイトの乗っ取りができる穴があり、悪用が確認されました。米政府の「悪用確認済みリスト」KEVに、11/24（米国時間）に載りました。</p>
+<p class="what">最初の設置に使う画面install.phpが設置後も残っていると、サイトを入れ直されてしまう穴です。修正版は11/18（米国時間）に出ています。開発元は「狙われる設定はまれ」としていますが、実証コードが出ていました。</p>
+<p class="ex"><b>たとえると</b>入居後も玄関に「新しい持ち主の登録窓口」が残っていて、誰でも家の持ち主になれてしまう話です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-132165（開発元の評価で Critical、18/25。勧告 SA-CORE-2026-017）</dd>
+<dt>直った版</dt><dd>Drupal 10.6.22 / 11.3.22 / 11.4.13（11/18公開）。11.2以前・10.5以前・8・9はサポート終了で修正なし</dd>
+<dt>米政府機関の期限</dt><dd>11/27</dd>
+<dt>同時にKEV入り</dt><dd>Optimizely Web Experimentation（CVE-2026-132224、11/18号で既報）、Idunno AntiCsrf（CVE-2026-131914）</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: Drupalで作ったサイトを制作会社に任せている人は、更新したかを確かめる。管理者: 【今日中】直った版に更新し、/core/install.php へのアクセスをWebサーバーの設定で止める。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>Drupal 10・11でサイトを動かしている会社や団体が対象です。サポートが終わった古い版は修正版が出ないため、新しい版への移行が必要です。</p>
+<ul class="todo"><li>管理画面の「状態報告」でDrupalの版を確かめ、上の「直った版」と比べる</li><li>ブラウザで「サイトのURL/core/install.php」を開き、設置画面が出ないことを確かめる</li><li>Webサーバーが settings.php に書き込めない設定になっているかを確かめる（一部の攻撃の道がふさがる）</li></ul>
+</section>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-id="openai-cisco-shirudo" data-sev="low" data-tag="注目" data-short="Linuxを再起動なしで守る">
+<header><span class="sev">注目</span><h3>【11/23発表】OpenAIとCisco、Linuxを再起動なしで守る「Shirudo」を無料公開</h3></header>
+<p class="what">対話型AIの米<span class="pn">OpenAI</span>と、ネットワーク機器大手の米<span class="pn">Cisco</span>が、Linuxを再起動なしで守る仕組み<span class="pn">Shirudo</span>を無料で公開しました。修正版を当てるまでの間、穴を突く動きだけを止める「シールド」を、動いているサーバーに後から足せます。</p>
+<p class="what">シールドは、Linuxの中で小さなプログラムを動かす仕組みeBPFで作り、AIエージェントが作って試します。動かす前には、人の許可と電子署名の確認が要ります。本番で使うには、専用のカーネル修正とセキュリティ用の部品TPM 2.0が必要です。</p>
+<p class="ex"><b>たとえると</b>割れた窓を業者が直しに来るまで、とりあえず板を打ち付けておくような話です。</p>
+<p class="act"><b>やること</b>利用者: 特になし。管理者: 【計画】検証用の環境で試し、パッチを当てるまでの「つなぎ」に使えるかを確かめる。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term":"Drupal","aliases":["ドルーパル"],"full":"","short":"Webサイトを作る無料の管理ソフト","long":"Webサイトを作って更新するための無料の管理ソフト（CMS）。官公庁や大学、企業のサイトでも使われ、穴を突かれるとサイトの改ざんや乗っ取りにつながる。"},{"term":"CMS","aliases":["コンテンツ管理システム"],"full":"Content Management System","short":"Webサイトを作る管理ソフト","long":"専門知識がなくてもWebサイトの記事や画像を更新できる管理ソフト。WordPressやDrupalが代表例で、広く使われるため穴が見つかると多くのサイトが一斉に狙われる。"},{"term":"install.php","aliases":["インストーラー"],"full":"","short":"Drupalの設置用の画面","long":"Drupalを最初に設置するときに使う画面のファイル。設置後もサーバーに残るため、外から開ける状態だと、今回の穴でサイトを入れ直されて乗っ取られる恐れがある。"},{"term":"実証コード","aliases":["概念実証コード"],"full":"","short":"穴を突けることを示すプログラム","long":"脆弱性が本当に悪用できることを示すために作られたプログラム。公開されると攻撃者もまねしやすくなるため、修正版をすぐ当てる目安になる。"},{"term":"settings.php","aliases":[],"full":"","short":"Drupalの設定ファイル","long":"Drupalのデータベースの接続先などを書いた設定ファイル。Webサーバーがこのファイルを書き換えられない設定にしておくと、今回の穴の一部の攻撃の道をふさげる。"},{"term":"AntiCsrf","aliases":["Idunno AntiCsrf"],"full":"","short":"Webアプリの偽リクエスト対策部品","long":"Webアプリで、利用者になりすました偽の操作要求を防ぐための部品。今回は受け取ったデータを復元する処理に穴があり、悪用が確認されてKEVに載った。"},{"term":"個人情報保護委員会","aliases":["個情委","PPC"],"full":"Personal Information Protection Commission","short":"個人情報の扱いを監督する国の機関","long":"企業などの個人情報の扱いを監督する国の機関。大きな漏えいが起きた企業は報告が義務で、指導や命令を出すこともあるため、報告の内容は被害の範囲を知る手がかりになる。"},{"term":"パスポートの写し","aliases":["旅券の写し"],"full":"","short":"ホテルが控えるパスポートのコピー","long":"日本のホテルが外国人客を泊めるときに控えるパスポートのコピー。氏名や生年月日、旅券番号が載っているため、漏れるとなりすましや偽造に悪用される恐れがある。"},{"term":"本人確認書類","aliases":[],"full":"","short":"運転免許証など本人を示す書類","long":"運転免許証やパスポート、マイナンバーカードなど、本人であることを示す書類。顔写真や住所が載っているため、漏れるとなりすましの口座開設などに悪用される恐れがある。"},{"term":"eBPF","aliases":[],"full":"extended Berkeley Packet Filter","short":"Linuxの中で小さな処理を動かす仕組み","long":"Linuxの中心部で、小さなプログラムを安全に後から動かす仕組み。再起動せずに通信の監視や動作の制限ができるため、防御や性能の調査に広く使われている。"},{"term":"カーネル","aliases":["Linuxカーネル"],"full":"Kernel","short":"OSの中心部分","long":"OSの中心で、メモリや機器、プログラムの動きを管理する部分。ここを乗っ取られると機械全体を思い通りにされるため、カーネルの修正は特に慎重に扱われる。"},{"term":"TPM","aliases":["TPM 2.0"],"full":"Trusted Platform Module","short":"PCに載るセキュリティ用の部品","long":"鍵の保管や起動時の改ざんチェックを行う、PCやサーバーに載るセキュリティ用の部品。記録を書き換えにくいため、何がいつ動いたかを後から確かめる証拠になる。"},{"term":"電子署名","aliases":["署名"],"full":"Digital signature","short":"作った人と改ざんの有無を示す印","long":"データを誰が作ったかと、途中で書き換えられていないかを確かめる仕組み。署名のないプログラムを動かさないようにすると、攻撃者が偽物を紛れ込ませにくくなる。"},{"term":"シールド","aliases":["盾"],"full":"","short":"穴を突く動きだけを止める仮の防御","long":"Shirudoで作る、特定の穴を突く動きだけを止める小さなプログラム。修正版を当てるまでの仮の対策で、本来の修正の代わりにはならない。"},{"term":"Shirudo","aliases":[],"full":"","short":"OpenAIとCiscoのLinux防御の仕組み","long":"OpenAIとCiscoが無料で公開した、Linuxを再起動なしで守る仕組み。AIが作った防御を人が許可してから動かすため、パッチまでの空白の時間を短くできる。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>ランサムウェア：</b>会社のサーバーのデータを暗号化して使えなくし、元に戻す代わりに身代金を求める攻撃。最近は暗号化の前にデータを盗み出し、「払わないと公開する」と脅す手口が主流です。今日の京王の件のように、攻撃から2か月たって漏れた範囲がやっと分かることもあるため、日ごろから「どこに何の個人情報があるか」を把握しておくことが大切です。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://www.keio.co.jp/news/update/news_release/news_release2026/pdf/nr20261124_newsrelease.pdf">京王電鉄: ニュースリリース（11/24）</a></li>
+<li><a href="https://www.techno-edge.net/article/2026/11/24/5804.html">テクノエッジ: 京王電鉄、顧客など約1063万人の個人情報が漏えいした恐れ パスポートの写し約160万件、カード番号も</a></li>
+<li><a href="https://www.kokuyo.com/news/important/20261124/">コクヨ: 【カウネット】株式会社プレイドで発生した不正アクセスに伴うメールアドレス等の漏えいについて（第2報）（11/24）</a></li>
+<li><a href="https://globis.co.jp/news/other/13870-2026-11-24/">グロービス: 当社が利用していた外部サービス「KARTE」への不正アクセスに伴う個人情報流出について（11/24）</a></li>
+<li><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog">CISA: Known Exploited Vulnerabilities Catalog（11/24追加: CVE-2026-132165、CVE-2026-132224、CVE-2026-131914）</a></li>
+<li><a href="https://thehackernews.com/2026/11/drupal-patches-critical-installer-flaw.html">The Hacker News: Drupal Patches Critical Installer Flaw</a></li>
+<li><a href="https://bleepingcomputer.com/news/security/drupal-patches-critical-rce-flaw-warns-exploits-may-surface-quickly">BleepingComputer: Drupal patches critical RCE flaw, warns exploits may surface quickly</a></li>
+<li><a href="https://horizon3.ai/attack-research/vulnerabilities/cve-2026-132165/">Horizon3.ai: CVE-2026-132165: Drupal Core Installer RCE</a></li>
+<li><a href="https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m11/cisco-and-openai-launch-shirudo-a-new-project-to-safeguard-agentic-ai.html">Cisco: Cisco and OpenAI Launch Shirudo（11/23）</a></li>
+<li><a href="https://www.helpnetsecurity.com/2026/11/24/cisco-openai-shirudo/">Help Net Security: Linux patches can take weeks, and OpenAI and Cisco built Shirudo to help in the meantime</a></li>
+<li><a href="https://github.com/shirudo-dev/shirudo">GitHub: shirudo-dev/shirudo</a></li>
+</ul>
+</section>
