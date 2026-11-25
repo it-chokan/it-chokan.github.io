@@ -1,0 +1,89 @@
+<!--meta {"date":"2026-11-26","title":"MiCollabの穴、悪用を確認／ヤマト・サツドラで漏えい／T:AIの勝手な操作を事前に止める","summary":"会議ソフトMiCollabの穴で米政府が悪用を確認。ヤマトやサツドラなど漏えい6件。ENEOSアプリが不正アクセスで停止。","window":"11/25 05:30 〜 11/26 05:30 JST","sns":{"hook":"会議ソフトに穴、悪用を確認","items":[{"voice":"うちの会社の電話システム、大丈夫…？","fix":"MiCollabにパッチを当てる","say":"企業向けの会議ソフト、マイコラブの穴が悪用されています。管理者は今日中にパッチを。"},{"voice":"ヤマトのチャット使ったけど、大丈夫…？","fix":"不審なSMSのリンクは押さない","say":"ヤマトやサツドラで情報漏えい。各社を名乗る不審なメールやエスエムエスに注意して。"},{"voice":"AIが頼んでない操作、止めてくれる？","fix":"AIの操作を実行前にチェック","say":"グーグルが、エーアイエージェントの勝手な操作を、実行前に止める機能を試験公開しました。"}]}} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-id="mitel-micollab-kev" data-sev="high" data-tag="重大" data-short="MiCollabの穴、悪用を確認">
+<header><span class="sev">ヤバい</span><h3>社内の電話・会議ソフトMiCollabに乗っ取りの穴、悪用を確認。Juniperの管理機器の穴とあわせ米KEVに登録</h3></header>
+<p class="what">企業向けの電話・会議ソフト<span class="pn">Mitel MiCollab</span>の穴5件で米政府が悪用を確認し、「悪用確認済みリスト」KEVに11/25（米国時間）載せました。会議ソフトMiCollabの穴のうち2件は、ログインなしで外から命令を動かせる深刻なものです。</p>
+<p class="what">穴は会議機能AWVにあり、開発元は11/16に修正パッチを出しています。拠点のルーターをまとめて管理する<span class="pn">Juniper Session Smart Conductor</span>の乗っ取りの穴（CVSS 9.8）も同じ日に載りました。こちらは10/28に直った版が出ています。</p>
+<p class="ex"><b>たとえると</b>会社の会議室の裏口の鍵が壊れていると分かり、実際に泥棒が出入りし始めたような話です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>MiCollab: CVE-2026-133323（CVSS 10.0）、CVE-2026-133303（9.0）、CVE-2026-133275、CVE-2026-133324、CVE-2026-133311／Juniper: CVE-2026-103406（9.8）</dd>
+<dt>直った版</dt><dd>MiCollab: 10.3（10.3.0.18）＋修正パッチ（勧告 MISA-2026-0012、手順 KB000129195）以降／Juniper: 7.0.5・7.1.7・7.2.3以降（JSA112183）</dd>
+<dt>米政府機関の期限</dt><dd>11/28（一部は12/9）</dd>
+<dt>同時にKEV入り</dt><dd>Xen Orchestra（CVE-2026-133469）、Danfoss AK-SM 800A（CVE-2025-41450、CVE-2023-25914、CVE-2023-25915）</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 特になし（サービス側の対応を待つ）。管理者: 【今日中】MiCollabに修正パッチを当て、それまでは会議機能AWVを社外から使えないようにする。Juniperの管理機器は直った版に更新する。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>MiCollabで社内の電話・会議を動かしている会社と、JuniperのSession Smart製品で拠点のネットワークを組んでいる会社が対象です。</p>
+<ul class="todo"><li>MiCollabは版番号だけでは直ったか分からないため、Mitelの手順書KB000129195に沿ってパッチの有無を確かめる</li><li>ファイアウォールの設定で、会議機能AWVの画面がインターネットから開けないかを確かめる</li><li>Juniper Session Smart Conductorの版が7.0.5・7.1.7・7.2.3以上かを管理画面で確かめる</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="yamato-satudora-leak" data-sev="high" data-tag="漏洩" data-short="漏えいまとめ 6件">
+<header><span class="sev">ヤバい</span><h3>ヤマトの問い合わせチャット・サツドラのLINE会員23万件で漏えい。個人情報の漏えい公表まとめ（6件）</h3></header>
+<p class="what">宅配の<span class="pn">ヤマト運輸</span>や、北海道のドラッグストア<span class="pn">サツドラ</span>など6件で漏えいが公表されました。最大はサツドラの約23万件です。ヤマトは、問い合わせチャットで氏名・住所・電話番号が漏れた恐れがあります。</p>
+<p class="what">今日は、委託先のサーバーやサービスが入口になった事案が目立ちます。11/24公表で前号に載せられなかった4件も入れました。</p>
+<ul class="leaks">
+<li><b>PLANT Pay（スーパーPLANTの電子マネー）</b><span class="n">4万2,107件</span>カード番号・暗証番号・メール。委託先サーバー（11/24公表） → 該当したら: 残高と利用履歴を確認</li>
+<li><b>JAXA（地球観測データの公開システム）</b><span class="n">約2,000件</span>利用者のアカウント名と暗号化したパスワード。Webアプリの穴（11/24公表） → 該当したら: 同じパスワードを変更</li>
+<li><b>サツドラ（公式LINE・アプリ連携）</b><span class="n">22万9,026件</span>メール・名・生年月日・性別・ポイントカード番号など。委託先の設定ミスで約1年4か月公開 → 該当したら: 不審なメールに注意</li>
+<li><b>PS保険（ペット保険、ペットメディカルサポート）</b><span class="n">最大約21万人</span>資料請求者の氏名・住所・電話・メール。委託先サーバー（11/24公表） → 該当したら: 不審な連絡に注意</li>
+<li><b>ヤマト運輸（外国語の問い合わせチャット）</b><span class="n">件数調査中</span>氏名・住所・電話番号。委託先チャットプラス → 該当したら: 不審なSMS・電話に注意</li>
+<li><b>MJS M&amp;Aパートナーズ（M&amp;A仲介、ミロク情報サービス子会社）</b><span class="n">最大数千社分</span>顧客企業の情報、一部に個人情報。社内ネットワーク（11/24公表） → 該当したら: 同社からの連絡を確認</li>
+</ul>
+<p class="ex"><b>たとえると</b>自分の家の鍵は無事でも、合い鍵を預けた管理会社から次々に盗まれたような話です。</p>
+<p class="act"><b>やること</b>利用者: ヤマトやサツドラなどを名乗るメール・SMSのリンクは押さない。PLANT Payを使う人は、残高と利用履歴に覚えのない動きがないか確かめる。管理者: 【計画】個人情報を預けている委託先の一覧を作り、公開設定や保存期間を点検する。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>サツドラは、2023年6月〜2025年7月にサツドラの公式LINEを友だち登録してアプリと連携した人の一部です。ヤマトは、外国語の問い合わせチャットを使った人が対象になり得ます。</p>
+<ul class="todo"><li>各社の公表ページ（出典欄）で、対象の期間とサービスに自分が入るかを確かめる</li><li>ヤマトは配達の変更などをチャットで受け付けていたが今は停止中。ヤマトを名乗るSMSのURLは開かず、公式アプリや電話で確かめる</li><li>JAXAの公開システムに登録していた人は、同じパスワードを使い回したサービスを洗い出して変える</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="eneos-app-stop" data-sev="mid" data-tag="身近" data-short="ENEOSアプリが停止">
+<header><span class="sev">注意</span><h3>ENEOSアプリに不正アクセス、サービスを停止。給油やカード払いは普段どおり</h3></header>
+<p class="what">石油元売り大手<span class="pn">ENEOS</span>は11/25、公式アプリのシステムへの不正アクセスを見つけ、16時ごろからアプリを停止しました。個人情報が漏れたかどうかは調査中です。</p>
+<p class="what">ガソリンスタンドの給油と、現金・クレジットカード・タグ型EneKeyでの支払いは普段どおりです。アプリのクーポンとスマホのEneKeyは、止まっている間は使えません。再開の時期は決まっていません。</p>
+<p class="ex"><b>たとえると</b>お店は開いているのに、会員カードの窓口だけが点検で閉まっているような状態です。</p>
+<p class="act"><b>やること</b>利用者: ENEOSを名乗るメール・SMSのリンクは押さず、個人情報も入れない。給油の支払いは当面、現金やカードを使う。</p>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-id="google-semantic-governance" data-sev="low" data-tag="注目" data-short="AIの勝手な操作を事前に止める">
+<header><span class="sev">注目</span><h3>【11/25発表】Google、AIエージェントの「頼んでいない操作」を実行前に止める機能をプレビュー公開</h3></header>
+<p class="what">米<span class="pn">Google</span>は、企業向けのAIエージェント基盤<span class="pn">Gemini Enterprise Agent Platform</span>に、AIの勝手な操作を事前に止める機能をプレビューで出しました。Webページなどに隠した命令でAIを操る攻撃を防ぐのがねらいです。</p>
+<p class="what">エージェントと道具の間に立つ中継役Agent Gatewayで、AIが操作の一つ一つを利用者の意図と社内ルールに照らして判定します。外れた操作は実行させません。Google自身、判定は間違うことがあると注意しています。</p>
+<p class="ex"><b>たとえると</b>秘書が判を押す前に、上司の指示書と見比べて「本当に頼まれた仕事か」を確かめるような話です。</p>
+<p class="act"><b>やること</b>利用者: 特になし。管理者: 【計画】AIエージェントを業務で使う会社は、検証用の環境で試し、必要な操作まで止めないかを確かめる。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term": "MiCollab", "aliases": ["Mitel MiCollab", "マイコラブ"], "full": "", "short": "Mitelの社内電話・会議ソフト", "long": "カナダMitelの、社内の電話・チャット・Web会議をまとめる企業向けソフト。社外からつながる会議機能を持つため、穴があると外から社内のサーバーを乗っ取られる入口になる。"}, {"term": "AWV", "aliases": [], "full": "Audio, Web and Video Conferencing", "short": "MiCollabの会議機能", "long": "MiCollabの中で、音声・Web・ビデオ会議を受け持つ部分。社外の参加者向けにインターネットへ公開されることが多く、今回の深刻な穴もここにあった。"}, {"term": "Session Smart Conductor", "aliases": ["Session Smart Router", "SSR"], "full": "", "short": "Juniperの拠点ルーター管理機器", "long": "米Juniperの、各拠点のルーターをまとめて設定・管理する機器。ここを乗っ取られると、つながる全拠点のネットワークを操作される恐れがあるため更新を急ぐ。"}, {"term": "Xen Orchestra", "aliases": [], "full": "", "short": "仮想サーバーの管理ツール", "long": "仮想化ソフトXCP-ng/Xenで動く多数の仮想サーバーを、画面からまとめて管理するツール。管理の要なので、穴を突かれると上で動く全サーバーに影響が及ぶ。"}, {"term": "AK-SM 800A", "aliases": ["AK-SM 800"], "full": "", "short": "Danfossの冷蔵設備の監視装置", "long": "デンマークDanfossの、スーパーなどの冷蔵・冷凍設備を監視・制御する装置。ネットにつながったまま古い版で放置されやすく、乗っ取られると温度管理などに影響する。"}, {"term": "PLANT Pay", "aliases": [], "full": "", "short": "スーパーPLANTの電子マネー", "long": "スーパーPLANTのチャージ式電子マネー。カード番号と暗証番号が一緒に漏れると、なりすましで使われる恐れがあるため、残高と利用履歴の確認が大切になる。"}, {"term": "Webアプリ", "aliases": ["Webアプリケーション"], "full": "Web application", "short": "ブラウザで使うプログラム", "long": "ブラウザから使う会員サイトや管理画面などのプログラム。インターネットに公開されているため、穴があると外から直接狙われ、裏口を仕掛けられることもある。"}, {"term": "不正アクセス", "aliases": [], "full": "Unauthorized access", "short": "権限なくシステムに入ること", "long": "許可を得ていない人が、他人のIDを使ったり穴を突いたりしてシステムに入ること。委託先のサービスが狙われると、それを使う多くの企業の顧客情報がまとめて漏れる。"}, {"term": "設定ミス", "aliases": ["公開設定のミス", "誤設定"], "full": "Misconfiguration", "short": "設定の誤りで情報が見える状態", "long": "クラウドの保存場所を誰でも見られる設定にしてしまうなどの誤り。攻撃がなくても情報が外から取れる状態になり、長い間気づかれないことが多いため点検が要る。"}, {"term": "EneKey", "aliases": ["タグ型EneKey"], "full": "", "short": "ENEOSのかざして払う決済キー", "long": "ENEOSのガソリンスタンドで、かざすだけで支払いができる仕組み。キーホルダー型のタグとスマホ版があり、今回はスマホ版だけがアプリ停止の影響を受けた。"}, {"term": "Gemini Enterprise Agent Platform", "aliases": [], "full": "", "short": "Googleの企業向けAI基盤", "long": "Google Cloudの、企業がAIエージェントを作って動かし、管理するための基盤。エージェントが社内システムを操作するため、誤った操作を止める仕組みが重要になる。"}, {"term": "Agent Gateway", "aliases": [], "full": "", "short": "AIエージェントの通信の中継役", "long": "AIエージェントとAIモデル、エージェントと道具（ツール）の間に立って通信を中継する仕組み。ここで操作を検査することで、危ない操作を実行前に止められる。"}, {"term": "プレビュー", "aliases": ["プレビュー版"], "full": "Preview", "short": "正式提供前のお試し版", "long": "正式提供（GA）の前に、試してもらうために出す版。機能や料金が変わることがあり、サポートも限られるため、本番の業務で使う前には十分な検証が要る。"}, {"term": "M&A", "aliases": ["M＆A"], "full": "Mergers and Acquisitions", "short": "会社の合併や買収", "long": "会社どうしの合併や買収のこと。仲介会社は売り手・買い手の決算書や役員の情報など機密の資料を預かるため、漏れると取引や経営に大きな影響が出る。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>委託先：</b>会社が仕事の一部を任せている外部の会社やサービスのこと。チャットの受付、メール配信、アプリの運用などを任せると、顧客の情報もそこに預けることになります。今日のヤマトやサツドラのように、自社が無事でも委託先から漏れることがあるため、「どこに何を預けているか」を一覧にしておくことが大切です。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog">CISA: Known Exploited Vulnerabilities Catalog（11/25追加: CVE-2026-133323 ほか9件）</a></li>
+<li><a href="https://www.mitel.com/support/security-advisories/mitel-product-security-advisory-misa-2026-0012">Mitel: Product Security Advisory MISA-2026-0012</a></li>
+<li><a href="https://brandefense.io/security-news/mitel-micollab-awv-critical-fixes/">Brandefense: Mitel MiCollab AWV Vulnerabilities: Fixes</a></li>
+<li><a href="https://zerohour.day/item/d8bf6aaee32c402afb080bbb75325395fc2061ca">zerohour: CISA adds Mitel MiCollab auth-bypass flaw CVE-2026-133324 to KEV</a></li>
+<li><a href="https://brandefense.io/security-news/juniper-session-smart-router-vulnerability-jsa112183/">Brandefense: Juniper Session Smart Router Vulnerability（JSA112183）</a></li>
+<li><a href="https://www.yamato-hd.co.jp/important/info_261125_1.html">ヤマトホールディングス: お問い合わせ対応に利用しているチャットサービスへの不正アクセスに伴う個人情報漏洩の可能性について（11/25）</a></li>
+<li><a href="https://www.release.tdnet.info/inbs/140120261117582334.pdf">チャットプラス: 不正アクセスに関するお知らせ（第一報、11/17）</a></li>
+<li><a href="https://satudora.co.jp/news/ps_information_1125">サツドラ: 個人情報の流出に関するお知らせ（11/25）</a></li>
+<li><a href="https://news.web.nhk/newsweb/na/nd-20261125de81337">NHK: サツドラで約23万件の個人情報流出 委託先の管理ミスが原因か</a></li>
+<li><a href="https://www.release.tdnet.info/inbs/140120261123584551.pdf">PLANT: 当社委託先への不正アクセスに関するお知らせ（11/24）</a></li>
+<li><a href="https://www.jaxa.jp/press/2026/11/20261124-2_j.html">JAXA: 不正アクセスに関するお知らせ（11/24）</a></li>
+<li><a href="https://pshoken.co.jp/imp/261124.html">ペットメディカルサポート: 委託先サーバーへの不正アクセスについて（11/24）</a></li>
+<li><a href="https://www.mjs.co.jp/news/news_2026/2026112400/">ミロク情報サービス: 弊社子会社への不正アクセスによる情報漏えいの可能性に関するお詫びとお知らせ（11/24）</a></li>
+<li><a href="https://news.web.nhk/newsweb/na/nd-20261125de81289">NHK: M＆A仲介「MJS M＆Aパートナーズ」に不正アクセス 最大数千社分の顧客情報漏えいか</a></li>
+<li><a href="https://jouhourouei.clipmaster.jp/">情報漏洩まとめ.site（11/24・11/25公表分の一覧）</a></li>
+<li><a href="https://www.eneos.co.jp/announcement/20261125.html">ENEOS: ENEOS公式アプリへの不正アクセス検知による利用停止について（11/25）</a></li>
+<li><a href="https://developers.googleblog.com/did-the-user-ask-for-this-securing-ai-agents-against-intent-hijacking-with-semantic-governance-policies/">Google Developers Blog: Securing AI agents against intent hijacking with semantic governance policies（11/25）</a></li>
+<li><a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/govern/policies/semantic-governance-overview">Google Cloud: Semantic governance overview（Preview）</a></li>
+</ul>
+</section>
