@@ -1,0 +1,101 @@
+<!--meta {"date":"2026-11-27","title":"ニューバランス374万件漏えい／Palo Alto機器に乗っ取り被害／T:調査AIに新モード2つ","summary":"ニューバランス最大374万件など漏えい4件。Palo Altoの機器で乗っ取り被害。Drupalに別の穴で悪用、PayPayは約9時間障害。","window":"11/26 05:30 〜 11/27 05:30 JST","sns":{"hook":"374万件漏えい、偽メール注意","items":[{"voice":"ニューバランスで買ったけど、大丈夫…？","fix":"各社を名乗るメールは開かない","say":"ニューバランスやワンパスワードで情報漏えい。各社を名乗るメールやエスエムエスに注意して。"},{"voice":"会社のファイアウォール、乗っ取られるの？","fix":"PAN-OSを直った版に更新","say":"パロアルトの機器で乗っ取り被害。管理者は今日中に更新し、管理画面を外から隠して。"},{"voice":"市場調査、AIに丸ごと任せられる？","fix":"調べものと資料作りをAIに任せる","say":"国内のサカナエーアイが、調べものからスライド作りまでこなす調査AIを強化しました。"}]}} -->
+<h2 class="part" id="cat-incident"><span>#</span>インシデント</h2>
+
+<article class="topic" data-id="newbalance-1password-leak" data-sev="high" data-tag="漏洩" data-short="【続報】漏えいまとめ 4件">
+<header><span class="sev">ヤバい</span><h3>【続報】KARTE経由でニューバランス最大374万件。1Passwordも顧客情報が流出。個人情報の漏えい公表まとめ（4件）</h3></header>
+<p class="what">スニーカーの<span class="pn">ニューバランス</span>の公式通販で最大374万件など、4件の漏えいが公表されました。パスワード管理アプリ<span class="pn">1Password</span>でも、一部の利用者の氏名やメールが漏れました。</p>
+<p class="what">ニューバランスの入口は、ほかの多くの企業と同じ顧客分析ツールKARTEです。1Passwordは社員の開発用サービスGitHubのアカウントを使われましたが、パスワードを入れる保管庫は無事としています。</p>
+<ul class="leaks">
+<li><b>【続報】ニューバランス（スニーカーの公式オンラインストア）</b><span class="n">最大約374万件</span>顧客番号・性別・生年月日・購入商品名など。うちメール約12万件。KARTE経由 → 該当したら: 不審なメールに注意</li>
+<li><b>1Password（パスワード管理アプリ）</b><span class="n">一部の利用者</span>氏名・メール・復旧用のトークンなど。保管庫は無事。社員のGitHub経由 → 該当したら: 同社を名乗る連絡に注意</li>
+<li><b>AFC（健康食品・化粧品の公式通販）</b><span class="n">30万2,580人</span>氏名・住所・電話・生年月日・購入明細。カード番号は含まず。管理用IDで不正ログイン → 該当したら: 不審なSMS・電話に注意</li>
+<li><b>文部科学省（入札情報の公開システム）</b><span class="n">最大16万3,953件</span>事業者名・代表者名など、職員メール最大1,778件。原因は調査中（11/25公表） → 該当したら: 文科省を装う連絡に注意</li>
+</ul>
+<p class="ex"><b>たとえると</b>金庫は無事でも、金庫の持ち主の名簿が盗まれたような話です。名簿を使った詐欺の連絡に注意が要ります。</p>
+<p class="act"><b>やること</b>利用者: 各社を名乗るメール・SMS・電話のリンクは押さず、パスワードも入れない。1Passwordがパスワードや秘密の文字列シークレットキーを聞くことはありません。管理者: 【計画】KARTEなど外部サービスとの連携用の鍵を作り直し、契約を終えたサービスに顧客データが残っていないか確かめる。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>ニューバランス公式オンラインストアの会員、AFC公式オンラインショップの利用者、1Passwordの利用者の一部、文科省の入札情報システムに載っていた事業者が対象になり得ます。</p>
+<ul class="todo"><li>各社の公表ページ（出典欄）で、対象の期間とサービスに自分が入るかを確かめる</li><li>1Passwordは、招待・復旧メールを受け取っていた少数の利用者に個別に通知済み。アカウントで変える設定はないと同社は説明している</li><li>AFCは対象者の登録メールに順次連絡する。カード番号の入力を求める連絡はしないとしているので、求められたら詐欺と考える</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="paloalto-fragnesia" data-sev="high" data-tag="重大" data-short="Palo Altoで乗っ取り被害">
+<header><span class="sev">ヤバい</span><h3>企業のファイアウォールPalo Altoで乗っ取り被害。管理画面をネットに出した機器が標的（11/25公表）</h3></header>
+<p class="what">会社のネットの出入口を守る<span class="pn">Palo Alto Networks</span>の機器で、最高権限rootを奪う乗っ取り被害が確認されました。狙われたのは、管理画面をインターネットから開ける機器です。開発元は11/25に直った版を出しています。</p>
+<p class="what">攻撃者はPHPの穴PHP2Shellで管理画面から入り、Linuxの穴Fragnesiaでrootを取りました。PHP2Shellだけを直した版（例: 12.2.4-h1）では、Fragnesiaは直っていません。</p>
+<p class="ex"><b>たとえると</b>会社の正門の警備室の窓が道路に向いて開いていて、そこから入られ、合鍵の束まで取られたような話です。</p>
+<dl class="facts">
+<dt>勧告</dt><dd>PAN-SA-2026-0015（11/25）</dd>
+<dt>CVE</dt><dd>CVE-2026-46300（Fragnesia、CVSS 7.8、米KEV掲載済み）、入口は CVE-2026-109618（PHP2Shell）</dd>
+<dt>直った版</dt><dd>PAN-OS 10.2.18-h15、11.1.16-h6、11.2.16-h3、12.1.10-h6、12.2.4-h3 ほか（古い保守版は勧告を確認）</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: 特になし（サービス側の対応を待つ）。管理者: 【今日中】機器のOS「PAN-OS」を上の直った版に更新する。管理画面をインターネットから開けないようにし、管理者の操作の記録と設定に不審な変更がないか確かめる。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>Palo AltoのファイアウォールをPAN-OSで動かし、管理画面がインターネットから開ける会社が対象です。管理を社内の決まった場所からだけに絞っている場合は、次の定期メンテナンスで更新すればよいと開発元は説明しています。</p>
+<ul class="todo"><li>版番号は「-h」の後ろまで見て、上の直った版以上かを確かめる</li><li>専用の管理ポートに加え、管理を許可した通常のポートがないかも設定で確かめる</li><li>更新しても過去の侵入は消えないため、管理者の操作の記録と設定の変更履歴を見直す</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="drupal-installer-bypass" data-sev="high" data-tag="続報" data-short="【続報】Drupalに別の穴、悪用">
+<header><span class="sev">ヤバい</span><h3>【続報】Drupalに別の乗っ取りの穴、悪用を確認。11/18の修正版でも防げないサイトあり</h3></header>
+<p class="what">Webサイトを作る管理ソフト<span class="pn">Drupal</span>に、乗っ取りにつながる別の穴が見つかり、開発元が悪用を確認しました。11/25号で伝えた11/18の修正版を当てても、作りかけのまま残ったサイトなどは狙われます。</p>
+<p class="what">設定用の画面install.phpが外から開けると、最上位の管理者アカウントを奪われます。直った版は10.6.23・11.3.23・11.4.14です。</p>
+<p class="ex"><b>たとえると</b>玄関の鍵を替えたのに、工事中のまま残っていた勝手口から入られたような話です。</p>
+<dl class="facts">
+<dt>CVE</dt><dd>CVE-2026-136716（勧告 SA-CORE-2026-019、深刻度 Highly critical）</dd>
+<dt>直った版</dt><dd>Drupal 10.6.23 / 11.3.23 / 11.4.14。11.2以前・10.5以前はサポート終了で修正なし</dd>
+</dl>
+<p class="act"><b>やること</b>利用者: Drupalのサイトを制作会社に任せている人は、更新したかを確かめる。管理者: 【今日中】直った版に更新して仕上げ用の画面update.phpを実行し、install.phpを外から開けないようにする。</p>
+<section class="deep">
+<p class="chk"><b>あなたは対象？</b>Drupal 10・11でサイトを動かしている会社や団体です。管理画面では対象かどうか分からないと開発元は説明しているため、11/18に更新済みでも確かめが要ります。</p>
+<ul class="todo"><li>管理画面の「状態報告」でDrupalの版を確かめ、上の直った版と比べる</li><li>最初に作った管理者アカウント（user 1）のメールアドレスが自分たちのものかを確かめ、パスワードの変更も考える</li><li>Webサーバーの記録で、install.phpへの見覚えのないアクセスがないか確かめる</li></ul>
+</section>
+</article>
+
+<article class="topic" data-id="paypay-card-outage" data-sev="mid" data-tag="重大" data-short="PayPayのカード払いが停止">
+<header><span class="sev">注意</span><h3>PayPayのカード払いが約9時間止まる。11/25夜〜11/26朝、外からの攻撃ではないと説明</h3></header>
+<p class="what">スマホ決済の<span class="pn">PayPay</span>で、11/25の午後8時すぎから11/26の午前4時50分まで、約9時間、カードにひも付いた支払いとチャージができない障害がありました。今は直っています。</p>
+<p class="what">止まったのは、アプリでカード払いをする「PayPayクレジット」です。原因は調査中で、PayPayは不正アクセスなど外からの攻撃ではないと確かめたとしています。</p>
+<p class="ex"><b>たとえると</b>お店は開いているのに、カードの読み取り機だけが一晩止まっていたような話です。</p>
+<p class="act"><b>やること</b>利用者: 特になし（復旧済み）。支払い手段を1つに頼らず、残高払いや別のカードも使えるようにしておく。</p>
+</article>
+
+<h2 class="part" id="cat-tech"><span>#</span>新技術</h2>
+
+<article class="topic" data-id="sakana-marlin-modes" data-sev="low" data-tag="注目" data-short="調査AIに新モード2つ">
+<header><span class="sev">注目</span><h3>【11/26発表】Sakana AIの調査AI「Marlin」に新モード2つ。スライドも会議資料らしい構成に</h3></header>
+<p class="what">国内AI企業の<span class="pn">Sakana AI</span>は11/26、調査AI「<span class="pn">Sakana Marlin</span>」に新モード2つを追加しました。テーマを渡すと、AIが数時間かけて調べ、出典付きのレポートとスライドを作ります。</p>
+<p class="what">速さと広さ重視のTwilight 2.0と、深さと裏付け重視のMidnight 2.0です。1回の目安は約225ドルで、従来モードの3倍です。事業者向けの有料サービスで、従量課金で使えます。</p>
+<p class="ex"><b>たとえると</b>新人に「会議までに市場を調べて」と頼んだら、資料と出典リストまでそろえて返ってくるような話です。</p>
+<p class="act"><b>やること</b>利用者: 特になし。管理者: 【計画】調査AIを業務で使う会社は、出典を人が確かめる手順と、社外秘を入力しないルールを決めておく。</p>
+</article>
+
+<script type="application/json" id="post-terms">[{"term":"1Password","aliases":["ワンパスワード"],"full":"","short":"パスワード管理アプリ","long":"たくさんのパスワードを暗号化して1か所に保管し、自動入力もしてくれるアプリ。保管庫が無事でも、利用者名簿が漏れると同社を装う詐欺に使われる恐れがある。"},{"term":"保管庫","aliases":["Vault"],"full":"Vault","short":"パスワードをしまう暗号化された箱","long":"1Passwordなどのパスワード管理アプリで、パスワードやメモを暗号化してしまっておく場所。利用者だけが持つ鍵で守られるため、運営会社が侵入されても中身は読まれにくい。"},{"term":"シークレットキー","aliases":["Secret Key"],"full":"Secret Key","short":"1Passwordの秘密の文字列","long":"1Passwordで、パスワードと組み合わせてアカウントを守る長い秘密の文字列。運営会社も持っていないため、これを聞いてくる連絡はすべて詐欺と考えてよい。"},{"term":"不正ログイン","aliases":[],"full":"Unauthorized login","short":"他人のIDで勝手にログインすること","long":"盗んだり推測したりしたIDとパスワードで、本人になりすましてログインすること。管理用のIDが使われると、顧客情報をまとめて見られたり持ち出されたりする。"},{"term":"不正アクセス","aliases":[],"full":"Unauthorized access","short":"権限なくシステムに入ること","long":"許可を得ていない人が、他人のIDを使ったり穴を突いたりしてシステムに入ること。委託先のサービスが狙われると、それを使う多くの企業の顧客情報がまとめて漏れる。"},{"term":"PAN-OS","aliases":[],"full":"","short":"Palo Alto機器を動かすOS","long":"米Palo Alto Networksのファイアウォールを動かす専用のOS。会社のネットの出入口に置かれるため、乗っ取られると社内への通信をのぞかれたり、侵入の足場にされたりする。"},{"term":"Fragnesia","aliases":[],"full":"","short":"Linuxの権限を奪う穴の通称","long":"Linuxの通信の仕組みにある穴（CVE-2026-46300）の通称。すでに機器の中で動いている攻撃者が、最高権限rootを奪えてしまうため、ほかの穴と組み合わせて悪用される。"},{"term":"管理ポート","aliases":["管理インターフェース","管理インタフェース"],"full":"Management interface","short":"機器を設定するための専用の口","long":"ネットワーク機器の設定を変えるための専用の接続口や画面。本来は社内の管理者だけが使うもので、インターネットから開けると攻撃の入口になりやすい。"},{"term":"Drupal","aliases":["ドルーパル"],"full":"","short":"Webサイトを作る無料の管理ソフト","long":"Webサイトを作って更新するための無料の管理ソフト。官公庁や大学、企業のサイトでも使われ、穴が見つかると多くのサイトが一斉に狙われるため、早めの更新が要る。"},{"term":"install.php","aliases":["インストーラー"],"full":"","short":"Drupalの初期設定用の画面","long":"Drupalを最初に設置するときに使う設定画面。設置後も外から開けるままだと、攻撃者にサイトを作り直されたり、管理者を乗っ取られたりする入口になる。"},{"term":"update.php","aliases":[],"full":"","short":"Drupalの更新仕上げ用の画面","long":"Drupalを新しい版にしたあと、データベースの中身を新しい版に合わせるための画面。ソフトを入れ替えただけでは更新が終わらないため、忘れずに実行する必要がある。"},{"term":"user 1","aliases":[],"full":"","short":"Drupalで最初に作る管理者","long":"Drupalを設置したときに最初に作られる、最も強い権限を持つ管理者アカウント。ここのメールアドレスを書き換えられると、パスワードを再設定されて乗っ取られる。"},{"term":"PayPayクレジット","aliases":[],"full":"","short":"PayPayアプリのカード払い","long":"PayPayアプリから、ひも付けたクレジットカードで支払う機能。カードの登録だけで使えて便利な反面、止まるとカードでの支払いとチャージがまとめて使えなくなる。"},{"term":"チャージ","aliases":[],"full":"","short":"電子マネーに入金すること","long":"スマホ決済や電子マネーの残高にお金を入れること。銀行口座やカードから入れる方法があり、チャージが止まると残高が足りない人は支払いができなくなる。"},{"term":"Sakana Marlin","aliases":["Marlin"],"full":"","short":"Sakana AIの調査AI","long":"国内のSakana AIが提供する、事業者向けの調査用AIエージェント。テーマを渡すと仮説づくりから情報集め、検証までを数時間かけて行い、出典付きのレポートとスライドを作る。"},{"term":"Twilight 2.0","aliases":["Twilight"],"full":"","short":"Marlinの速さ重視の調査モード","long":"Sakana Marlinの調査モードの一つで、短い時間で幅広く情報を集めて全体像をつかむのに向く。従来モードより多くの出典を使う分、1回に使うクレジットは3倍になる。"},{"term":"Midnight 2.0","aliases":["Midnight"],"full":"","short":"Marlinの深さ重視の調査モード","long":"Sakana Marlinの調査モードの一つで、出典を多く集めて裏付けを重ね、分量の多いレポートを作る。徹底した確認が要る調査向けだが、時間と費用は従来モードより多くかかる。"},{"term":"従量課金","aliases":[],"full":"Pay-as-you-go","short":"使った分だけ払う料金方式","long":"月額の固定料金ではなく、使った回数や量に応じて料金を払う方式。少し試すには向くが、使いすぎると想定より高くなるため、上限の設定や使用量の確認が大切になる。"},{"term":"管理画面の公開","aliases":[],"full":"","short":"管理用画面を外から開ける状態","long":"本来は社内の管理者だけが使う設定画面を、インターネットから開ける状態にしておくこと。穴が見つかったときに真っ先に狙われるため、社内からだけ開けるように絞る。"}]</script>
+
+<section class="words">
+<h2>今日のキーワード</h2>
+<p><b>管理画面の公開：</b>機器やWebサイトの設定画面を、インターネットから開ける状態にしておくことです。今日のPalo AltoとDrupalは、どちらも本来は社内だけで使う画面が外から開けたことが入口でした。便利でも、管理用の画面は社内やVPNからだけ開けるようにしておくと、穴が見つかったときの被害をぐっと減らせます。</p>
+</section>
+
+<section class="src">
+<h2>出典</h2>
+<ul>
+<li><a href="https://news.web.nhk/newsweb/na/nd-20261126de81815">NHK: ニューバランス 会員のメールアドレス約12万件漏えいか（11/26）</a></li>
+<li><a href="https://jouhourouei.clipmaster.jp/">情報漏洩まとめ.site（11/25・11/26公表分の一覧。ニューバランス最大約374万件の内訳）</a></li>
+<li><a href="https://1password.com/blog/update-on-nov-2026-security-incident">1Password 公式ブログ: 11月のセキュリティインシデントについて（ITmedia記事からのリンク）</a></li>
+<li><a href="https://www.itmedia.co.jp/enterprise/articles/2611/26/news054.html">ITmedia エンタープライズ: 1Passwordに不正アクセス、顧客の氏名など流出（11/26）</a></li>
+<li><a href="https://internet.watch.impress.co.jp/docs/news/2159331.html">INTERNET Watch: 「1Password」のGitHubアカウントに不正アクセス、顧客管理データの一部漏えい（11/26）</a></li>
+<li><a href="https://464981.com/shop/pages/important-notice-20261126">エーエフシー: 不正アクセスによるお客様情報漏えいに関するお詫びとお知らせ（11/26）</a></li>
+<li><a href="https://smartscope.blog/blog/afc-302-580-customer-records-potentially-leaked-online-2026">SmartScope: AFC公式通販で302,580名の情報が漏えいの可能性</a></li>
+<li><a href="https://www.kanaloco.jp/news/social/article-1323987.html">神奈川新聞（共同通信）: 文部科学省に不正アクセス（11/26）</a></li>
+<li><a href="https://novaist.jp/articles/japan-procurement-data-breach/">NOVAIST: 文部科学省の政府調達情報システムに不正アクセス 最大16万3,953件</a></li>
+<li><a href="https://security.paloaltonetworks.com/PAN-SA-2026-0015">Palo Alto Networks: PAN-SA-2026-0015（11/25）</a></li>
+<li><a href="https://cybersecuritynews.com/palo-alto-confirms-fragnesia-exploitation/">Cyber Security News: Palo Alto Networks Confirms Hackers Are Exploiting Fragnesia Flaw（11/25）</a></li>
+<li><a href="https://www.jpcert.or.jp/wr/2026/wr261126.html">JPCERT/CC: Weekly Report 2026-11-26（複数のPalo Alto Networks製品に脆弱性）</a></li>
+<li><a href="https://www.drupal.org/sa-core-2026-019">Drupal: SA-CORE-2026-019（CVE-2026-136716）</a></li>
+<li><a href="https://securityaffairs.com/204085/security/drupal-warns-of-new-critical-flaw-exploited-in-the-wild.html">Security Affairs: Drupal Warns of New Critical Flaw Exploited in the Wild（11/26）</a></li>
+<li><a href="https://news.ksb.co.jp/ann/article/17081028">KSB（テレビ朝日系）: PayPayシステム障害 復旧 不正アクセス・サイバー攻撃は確認されず（11/26）</a></li>
+<li><a href="https://sakana.ai/marlin/">Sakana AI: Sakana Marlin（製品・料金ページ）</a></li>
+<li><a href="https://sakana.ai/feed">Sakana AI: Sakana Marlinアップデート：Twilight 2.0・Midnight 2.0とスライド出力の刷新（11/26）</a></li>
+</ul>
+</section>
